@@ -32,7 +32,7 @@ export class Translation {
   @Column()
   language: string;
 
-  @Column('jsonb')
+  @Column('json')
   content: {
     pageNumber: number;
     textRegions: Array<{
@@ -64,4 +64,7 @@ export class Translation {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @Column('json')
+  translatedText: any;
 } 

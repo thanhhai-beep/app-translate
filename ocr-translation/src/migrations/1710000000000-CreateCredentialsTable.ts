@@ -25,7 +25,7 @@ export class CreateCredentialsTable1710000000000 implements MigrationInterface {
           },
           {
             name: 'config',
-            type: 'jsonb',
+            type: 'json',
           },
           {
             name: 'is_active',

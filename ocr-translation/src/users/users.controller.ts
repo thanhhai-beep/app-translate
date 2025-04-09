@@ -17,6 +17,9 @@ export class UsersController {
     username: string;
     password: string;
     roles?: Role[];
+    name: string;
+    avatar?: string;
+    isActive?: boolean;
   }) {
     return this.usersService.create(createUserDto);
   }
@@ -30,7 +33,7 @@ export class UsersController {
   @Get(':id')
   @Roles(Role.ADMIN)
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+    return this.usersService.findOne(Number(id));
   }
 
   @Patch(':id')
@@ -47,7 +50,7 @@ export class UsersController {
       preferences?: any;
     },
   ) {
-    return this.usersService.update(id, updateUserDto);
+    return this.usersService.update(Number(id), updateUserDto);
   }
 
   @Delete(':id')
@@ -62,7 +65,7 @@ export class UsersController {
     @Param('id') id: string,
     @Body('role') role: Role,
   ) {
-    return this.usersService.addRole(id, role);
+    return this.usersService.addRole(Number(id), role);
   }
 
   @Put(':id/roles/remove')
@@ -71,7 +74,7 @@ export class UsersController {
     @Param('id') id: string,
     @Body('role') role: Role,
   ) {
-    return this.usersService.removeRole(id, role);
+    return this.usersService.removeRole(Number(id), role);
   }
 
   @Patch(':id/preferences')
@@ -79,6 +82,6 @@ export class UsersController {
     @Param('id') id: string,
     @Body() preferences: any,
   ) {
-    return this.usersService.updatePreferences(id, preferences);
+    return this.usersService.updatePreferences(Number(id), preferences);
   }
 } 

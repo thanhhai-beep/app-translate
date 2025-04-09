@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsBoolean } from 'class-validator';
+import { IsOptional, IsString, IsBoolean, IsObject } from 'class-validator';
 
 export class UpdatePreferencesDto {
   @IsOptional()
@@ -14,5 +14,6 @@ export class UpdatePreferencesDto {
   notifications?: boolean;
 
   @IsOptional()
-  [key: string]: any;
+  @IsObject()
+  additionalPreferences?: Record<string, any>;
 } 

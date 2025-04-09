@@ -11,6 +11,10 @@
   "dependencies": {
     "@headlessui/react": "^2.2.1",
     "@heroicons/react": "^2.2.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.9",
+    "bcryptjs": "^3.0.2",
+    "jsonwebtoken": "^9.0.2",
     "next": "^14.2.27",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

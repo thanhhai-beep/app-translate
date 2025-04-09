@@ -29,16 +29,16 @@ export class CreateTranslationsTable1710000000002 implements MigrationInterface 
           },
           {
             name: 'content',
-            type: 'jsonb',
+            type: 'json',
           },
           {
             name: 'metadata',
-            type: 'jsonb',
+            type: 'json',
             isNullable: true,
           },
           {
             name: 'statistics',
-            type: 'jsonb',
+            type: 'json',
             isNullable: true,
           },
           {

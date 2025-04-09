@@ -22,7 +22,7 @@ export class Credential {
   @Column()
   name: string;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'json' })
   config: Record<string, any>;
 
   @Column({ default: true })

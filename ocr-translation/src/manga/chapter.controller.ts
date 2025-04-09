@@ -23,7 +23,7 @@ export class ChapterController {
 
   @Get()
   findAll(@Param('mangaId') mangaId: string) {
-    return this.chapterService.findAll(mangaId);
+    return this.chapterService.findAllByManga(mangaId);
   }
 
   @Get(':chapterNumber')
@@ -38,18 +38,16 @@ export class ChapterController {
   @Roles(Role.ADMIN)
   update(
     @Param('mangaId') mangaId: string,
-    @Param('chapterNumber') chapterNumber: number,
     @Body() updateChapterDto: UpdateChapterDto,
   ) {
-    return this.chapterService.update(mangaId, chapterNumber, updateChapterDto);
+    return this.chapterService.update(mangaId, updateChapterDto);
   }
 
   @Delete(':chapterNumber')
   @Roles(Role.ADMIN)
   remove(
-    @Param('mangaId') mangaId: string,
-    @Param('chapterNumber') chapterNumber: number,
+    @Param('mangaId') mangaId: string
   ) {
-    return this.chapterService.remove(mangaId, chapterNumber);
+    return this.chapterService.remove(mangaId);
   }
 } 

@@ -2,8 +2,9 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { Role } from '../auth/enums/role.enum';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
+import { CreateUserDto, UpdateUserDto } from './dto/create-user.dto';
+import { Role } from 'src/auth/enums/role.enum';
 
 @Injectable()
 export class UsersService {
@@ -12,26 +13,27 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: {
-    email: string;
-    username: string;
-    password: string;
-    roles?: Role[];
-  }): Promise<User> {
-    // Check if user with email already exists
-    const existingUser = await this.usersRepository.findOne({
-      where: { email: createUserDto.email }
-    });
-    
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const { email, password, roles, ...rest } = createUserDto;
+
+    // Check if user already exists
+    const existingUser = await this.usersRepository.findOne({ where: { email } });
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      throw new ConflictException('Email already exists');
     }
 
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user
     const user = this.usersRepository.create({
-      ...createUserDto,
-      roles: createUserDto.roles || [Role.USER],
+      ...rest,
+      email,
+      password: hashedPassword,
+      roles: roles || [Role.USER],
     });
 
+    // Save user
     return this.usersRepository.save(user);
   }
 
@@ -39,82 +41,62 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  async findOne(id: string): Promise<User> {
-    const user = await this.usersRepository.findOne({
-      where: { id }
-    });
-    
+  async findOne(id: number): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-    
     return user;
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.usersRepository.findOne({
-      where: { email }
-    });
+    return this.usersRepository.findOne({ where: { email } });
   }
 
-  async update(id: string, updateUserDto: {
-    email?: string;
-    username?: string;
-    password?: string;
-    roles?: Role[];
-    isActive?: boolean;
-    avatar?: string;
-    preferences?: any;
-  }): Promise<User> {
+  async update(id: number, updateUserDto: Partial<UpdateUserDto>): Promise<User> {
     const user = await this.findOne(id);
-    
-    // If email is being updated, check if it's already taken
-    if (updateUserDto.email && updateUserDto.email !== user.email) {
-      const existingUser = await this.findByEmail(updateUserDto.email);
-      if (existingUser) {
-        throw new ConflictException('User with this email already exists');
-      }
-    }
-    
-    // If password is being updated, hash it
+
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
-    
+
     Object.assign(user, updateUserDto);
     return this.usersRepository.save(user);
   }
 
   async remove(id: string): Promise<void> {
-    const user = await this.findOne(id);
-    await this.usersRepository.remove(user);
+    const result = await this.usersRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
   }
 
-  async addRole(id: string, role: Role): Promise<User> {
+  async addRole(id: number, role: Role): Promise<User> {
     const user = await this.findOne(id);
     
     if (!user.roles.includes(role)) {
-      user.roles = [...user.roles, role];
+      user.roles.push(role);
       return this.usersRepository.save(user);
     }
     
     return user;
   }
 
-  async removeRole(id: string, role: Role): Promise<User> {
+  async removeRole(id: number, role: Role): Promise<User> {
     const user = await this.findOne(id);
     
-    if (user.roles.includes(role)) {
-      user.roles = user.roles.filter(r => r !== role);
+    const index = user.roles.indexOf(role);
+    if (index > -1) {
+      user.roles.splice(index, 1);
       return this.usersRepository.save(user);
     }
     
     return user;
   }
 
-  async updatePreferences(id: string, preferences: any): Promise<User> {
+  async updatePreferences(id: number, preferences: any): Promise<User> {
     const user = await this.findOne(id);
-    user.preferences = { ...user.preferences, ...preferences };
+    user.preferences = preferences;
     return this.usersRepository.save(user);
   }
 } 

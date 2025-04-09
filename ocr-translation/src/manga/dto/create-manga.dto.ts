@@ -1,4 +1,5 @@
-import { IsString, IsOptional, IsArray, IsUrl } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsString, IsOptional, IsArray, IsUrl, IsNumber } from 'class-validator';
 
 export class CreateMangaDto {
   @IsString()
@@ -44,4 +45,21 @@ export class CreateMangaDto {
   @IsArray()
   @IsString({ each: true })
   targetLanguages?: string[];
-} 
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  viewCount?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  favoriteCount?: number;
+}
+
+export class UpdateMangaDto extends CreateMangaDto {} 

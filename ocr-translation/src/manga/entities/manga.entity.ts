@@ -41,8 +41,8 @@ export class Manga {
   @Column({ nullable: true })
   status: string;
 
-  @Column('text', { array: true, nullable: true })
-  genres: string[];
+  @Column('text', { nullable: true })
+  genres: string;
 
   @Column({ name: 'cover_image', nullable: true })
   coverImage: string;
@@ -50,26 +50,16 @@ export class Manga {
   @Column({ name: 'source_language', nullable: true })
   sourceLanguage: string;
 
-  @Column('text', { name: 'target_languages', array: true, nullable: true })
-  targetLanguages: string[];
+  @Column('text', { name: 'target_languages', nullable: true })
+  targetLanguages: string;
 
   @OneToMany(() => Chapter, (chapter) => chapter.manga)
   chapters: Chapter[];
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @Column({ type: 'json', nullable: true })
+  metadata: any;
 
-  @UpdateDateColumn({ name: 'updated_at' })
-  @Column({ type: 'jsonb', nullable: true })
-  metadata: {
-    author?: string;
-    artist?: string;
-    publisher?: string;
-    releaseYear?: number;
-    rating?: number;
-  };
-
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'json', nullable: true })
   translation: {
     sourceLanguage: string;
     targetLanguages: string[];
@@ -77,8 +67,8 @@ export class Manga {
     status: string;
   };
 
-  @OneToMany(() => Chapter, chapter => chapter.manga)
-  chapters: Chapter[];
+  @Column('text', { nullable: true })
+  tags: string;
 
   @Column({ default: 0 })
   viewCount: number;

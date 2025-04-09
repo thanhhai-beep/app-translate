@@ -8,29 +8,31 @@ export class CreateUsersTable1710000000003 implements MigrationInterface {
         columns: [
           {
             name: 'id',
-            type: 'uuid',
+            type: 'int',
             isPrimary: true,
-            generationStrategy: 'uuid',
-            default: 'uuid_generate_v4()',
+            isGenerated: true,
+            generationStrategy: 'increment',
           },
           {
             name: 'email',
             type: 'varchar',
+            length: '255',
             isUnique: true,
           },
           {
             name: 'username',
             type: 'varchar',
+            length: '255',
           },
           {
             name: 'password',
             type: 'varchar',
+            length: '255',
           },
           {
             name: 'roles',
-            type: 'text',
-            isArray: true,
-            default: "'{USER}'",
+            type: 'json',
+            default: "'[\"USER\"]'",
           },
           {
             name: 'is_active',
@@ -40,11 +42,12 @@ export class CreateUsersTable1710000000003 implements MigrationInterface {
           {
             name: 'avatar',
             type: 'varchar',
+            length: '255',
             isNullable: true,
           },
           {
             name: 'preferences',
-            type: 'jsonb',
+            type: 'json',
             isNullable: true,
           },
           {

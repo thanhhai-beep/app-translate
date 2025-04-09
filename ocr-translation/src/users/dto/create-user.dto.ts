@@ -1,5 +1,5 @@
 import { IsEmail, IsString, MinLength, IsOptional, IsArray } from 'class-validator';
-import { Role } from '../../auth/enums/role.enum';
+import { Role } from 'src/auth/enums/role.enum';
 
 export class CreateUserDto {
   @IsEmail()
@@ -16,4 +16,15 @@ export class CreateUserDto {
   @IsOptional()
   @IsArray()
   roles?: Role[];
-} 
+
+  @IsString()
+  name: string;
+
+  @IsOptional()
+  avatar?: string;
+
+  @IsOptional()
+  isActive?: boolean;
+}
+
+export class UpdateUserDto extends CreateUserDto {} 

@@ -31,4 +31,6 @@ export class CreateChapterDto {
   @IsArray()
   @IsString({ each: true })
   targetLanguages?: string[];
-} 
+}
+
+export class UpdateChapterDto extends CreateChapterDto {} 

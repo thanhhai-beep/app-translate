@@ -3,28 +3,34 @@ import { Role } from '../../auth/enums/role.enum';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ unique: true })
   email: string;
 
   @Column()
-  username: string;
-
-  @Column()
   password: string;
 
-  @Column('text', { array: true, default: [Role.USER] })
+  @Column()
+  name: string;
+
+  @Column('text', { nullable: true })
   roles: Role[];
+
+  @Column({ nullable: true })
+  avatar: string;
+
+  @Column({ name: 'last_login', nullable: true })
+  lastLogin: Date;
 
   @Column({ default: true })
   isActive: boolean;
 
   @Column({ nullable: true })
-  avatar: string;
+  username: string;
 
-  @Column('jsonb', { nullable: true })
+  @Column('json', { nullable: true })
   preferences: {
     language?: string;
     theme?: string;
@@ -32,9 +38,9 @@ export class User {
     [key: string]: any;
   };
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 } 

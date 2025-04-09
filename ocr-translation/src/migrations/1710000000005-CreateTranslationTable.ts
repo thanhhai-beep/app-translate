@@ -8,35 +8,42 @@ export class CreateTranslationTable1710000000005 implements MigrationInterface {
         columns: [
           {
             name: 'id',
-            type: 'uuid',
+            type: 'int',
             isPrimary: true,
-            generationStrategy: 'uuid',
-            default: 'uuid_generate_v4()',
+            isGenerated: true,
+            generationStrategy: 'increment',
           },
           {
             name: 'chapter_id',
-            type: 'uuid',
+            type: 'int',
           },
           {
             name: 'translator_id',
-            type: 'uuid',
+            type: 'int',
           },
           {
             name: 'language',
             type: 'varchar',
+            length: '50',
           },
           {
             name: 'content',
-            type: 'jsonb',
+            type: 'json',
+          },
+          {
+            name: 'translated_text',
+            type: 'json',
+            isNullable: true,
           },
           {
             name: 'status',
             type: 'varchar',
+            length: '20',
             isNullable: true,
           },
           {
             name: 'reviewer_id',
-            type: 'uuid',
+            type: 'int',
             isNullable: true,
           },
           {
@@ -69,7 +76,7 @@ export class CreateTranslationTable1710000000005 implements MigrationInterface {
       new TableForeignKey({
         columnNames: ['chapter_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'chapter',
+        referencedTableName: 'chapters',
         onDelete: 'CASCADE',
       }),
     );
@@ -96,6 +103,13 @@ export class CreateTranslationTable1710000000005 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    const table = await queryRunner.getTable('translation');
+    if (table) {
+      const foreignKeys = table.foreignKeys;
+      for (const foreignKey of foreignKeys) {
+        await queryRunner.dropForeignKey('translation', foreignKey);
+      }
+    }
     await queryRunner.dropTable('translation');
   }
 } 

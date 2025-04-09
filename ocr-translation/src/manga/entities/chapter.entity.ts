@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Manga } from './manga.entity';
 import { Translation } from '../../translation/entities/translation.entity';
 
@@ -9,7 +9,7 @@ export enum ChapterStatus {
   PUBLISHED = 'PUBLISHED'
 }
 
-@Entity('chapter')
+@Entity('chapters')
 export class Chapter {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -21,32 +21,32 @@ export class Chapter {
   @JoinColumn({ name: 'manga_id' })
   manga: Manga;
 
-  @Column({ name: 'chapter_number' })
-  chapterNumber: number;
-
   @Column()
   title: string;
 
-  @Column({ name: 'original_title' })
-  originalTitle: string;
+  @Column()
+  number: number;
 
   @Column({ nullable: true })
   description: string;
 
-  @Column('text', { name: 'page_urls', array: true, nullable: true })
-  pageUrls: string[];
+  @Column('text', { name: 'page_urls', nullable: true })
+  pageUrls: string;
 
-  @Column({ nullable: true })
-  status: string;
+  @Column({ name: 'page_count', default: 0 })
+  pageCount: number;
 
   @Column({ name: 'source_language', nullable: true })
   sourceLanguage: string;
 
-  @Column('text', { name: 'target_languages', array: true, nullable: true })
-  targetLanguages: string[];
+  @Column('text', { name: 'target_languages', nullable: true })
+  targetLanguages: string;
 
   @OneToMany(() => Translation, (translation) => translation.chapter)
   translations: Translation[];
+
+  @Column({ default: 0 })
+  viewCount: number;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
