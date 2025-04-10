@@ -1,16 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MangaService } from './manga.service';
 import { MangaController } from './manga.controller';
-import { ChapterService } from './chapter.service';
-import { ChapterController } from './chapter.controller';
+import { MangaService } from './manga.service';
 import { Manga } from './entities/manga.entity';
-import { Chapter } from './entities/chapter.entity';
+import { ChaptersModule } from '../chapters/chapters.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Manga, Chapter])],
-  controllers: [MangaController, ChapterController],
-  providers: [MangaService, ChapterService],
-  exports: [MangaService, ChapterService],
+  imports: [TypeOrmModule.forFeature([Manga]), ChaptersModule],
+  controllers: [MangaController],
+  providers: [MangaService],
+  exports: [MangaService],
 })
 export class MangaModule {} 

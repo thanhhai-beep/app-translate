@@ -1,4 +1,4 @@
-import { Chapter } from './chapter.entity';
+import { Chapter } from '../../chapters/entities/chapter.entity';
 export declare enum MangaStatus {
     ONGOING = "ONGOING",
     COMPLETED = "COMPLETED",

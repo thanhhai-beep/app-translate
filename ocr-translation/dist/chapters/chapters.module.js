@@ -6,22 +6,22 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MangaModule = void 0;
+exports.ChaptersModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const manga_controller_1 = require("./manga.controller");
-const manga_service_1 = require("./manga.service");
-const manga_entity_1 = require("./entities/manga.entity");
-const chapters_module_1 = require("../chapters/chapters.module");
-let MangaModule = class MangaModule {
+const chapters_controller_1 = require("./chapters.controller");
+const chapters_service_1 = require("./chapters.service");
+const chapter_entity_1 = require("./entities/chapter.entity");
+const manga_entity_1 = require("../manga/entities/manga.entity");
+let ChaptersModule = class ChaptersModule {
 };
-exports.MangaModule = MangaModule;
-exports.MangaModule = MangaModule = __decorate([
+exports.ChaptersModule = ChaptersModule;
+exports.ChaptersModule = ChaptersModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([manga_entity_1.Manga]), chapters_module_1.ChaptersModule],
-        controllers: [manga_controller_1.MangaController],
-        providers: [manga_service_1.MangaService],
-        exports: [manga_service_1.MangaService],
+        imports: [typeorm_1.TypeOrmModule.forFeature([chapter_entity_1.Chapter, manga_entity_1.Manga])],
+        controllers: [chapters_controller_1.ChaptersController],
+        providers: [chapters_service_1.ChaptersService],
+        exports: [chapters_service_1.ChaptersService],
     })
-], MangaModule);
-//# sourceMappingURL=manga.module.js.map
+], ChaptersModule);
+//# sourceMappingURL=chapters.module.js.map

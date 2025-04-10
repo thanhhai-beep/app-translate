@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Manga = exports.MangaType = exports.MangaStatus = void 0;
 const typeorm_1 = require("typeorm");
-const chapter_entity_1 = require("./chapter.entity");
+const chapter_entity_1 = require("../../chapters/entities/chapter.entity");
 var MangaStatus;
 (function (MangaStatus) {
     MangaStatus["ONGOING"] = "ONGOING";

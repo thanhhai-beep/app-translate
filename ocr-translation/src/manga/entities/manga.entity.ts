@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { Chapter } from './chapter.entity';
+import { Chapter } from '../../chapters/entities/chapter.entity';
 
 export enum MangaStatus {
   ONGOING = 'ONGOING',
