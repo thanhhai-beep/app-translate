@@ -55,6 +55,9 @@ export class ChaptersService {
     if (!chapter) {
       throw new NotFoundException(`Chapter with ID ${id} not found`);
     }
+    if (chapter.contentType === 'image') {
+      chapter.content = (process.env.DOMAIN || 'http://localhost:3000') + chapter.content;
+    }
     return chapter;
   }
 

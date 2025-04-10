@@ -11,6 +11,8 @@ import { OcrModule } from './ocr/ocr.module';
 import { FileModule } from './file/file.module';
 import { CredentialsModule } from './credentials/credentials.module';
 import { JwtStrategy } from './auth/jwt.strategy';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -38,6 +40,10 @@ import { JwtStrategy } from './auth/jwt.strategy';
     OcrModule,
     FileModule,
     CredentialsModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],

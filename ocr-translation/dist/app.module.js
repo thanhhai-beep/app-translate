@@ -20,6 +20,8 @@ const ocr_module_1 = require("./ocr/ocr.module");
 const file_module_1 = require("./file/file.module");
 const credentials_module_1 = require("./credentials/credentials.module");
 const jwt_strategy_1 = require("./auth/jwt.strategy");
+const serve_static_1 = require("@nestjs/serve-static");
+const path_1 = require("path");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -50,6 +52,10 @@ exports.AppModule = AppModule = __decorate([
             ocr_module_1.OcrModule,
             file_module_1.FileModule,
             credentials_module_1.CredentialsModule,
+            serve_static_1.ServeStaticModule.forRoot({
+                rootPath: (0, path_1.join)(__dirname, '..', 'uploads'),
+                serveRoot: '/uploads',
+            }),
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, jwt_strategy_1.JwtStrategy],
