@@ -39,8 +39,15 @@ let UsersService = class UsersService {
         });
         return this.usersRepository.save(user);
     }
-    async findAll() {
-        return this.usersRepository.find();
+    async findAll(page = 1, limit = 10) {
+        const [data, total] = await this.usersRepository.findAndCount({
+            skip: (page - 1) * limit,
+            take: limit,
+            order: {
+                createdAt: 'DESC',
+            },
+        });
+        return { data, total };
     }
     async findOne(id) {
         const user = await this.usersRepository.findOne({ where: { id } });

@@ -18,9 +18,7 @@ const manga_service_1 = require("./manga.service");
 const create_manga_dto_1 = require("./dto/create-manga.dto");
 const update_manga_dto_1 = require("./dto/update-manga.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
-const roles_guard_1 = require("../auth/guards/roles.guard");
-const roles_decorator_1 = require("../auth/decorators/roles.decorator");
-const role_enum_1 = require("../auth/enums/role.enum");
+const swagger_1 = require("@nestjs/swagger");
 let MangaController = class MangaController {
     mangaService;
     constructor(mangaService) {
@@ -29,8 +27,8 @@ let MangaController = class MangaController {
     create(createMangaDto) {
         return this.mangaService.create(createMangaDto);
     }
-    findAll() {
-        return this.mangaService.findAll();
+    findAll(page = 1, limit = 10) {
+        return this.mangaService.findAll(page, limit);
     }
     findOne(id) {
         return this.mangaService.findOne(id);
@@ -45,7 +43,8 @@ let MangaController = class MangaController {
 exports.MangaController = MangaController;
 __decorate([
     (0, common_1.Post)(),
-    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Create new manga' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Manga created successfully' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_manga_dto_1.CreateMangaDto]),
@@ -53,12 +52,18 @@ __decorate([
 ], MangaController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all manga with pagination' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Return all manga' }),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", void 0)
 ], MangaController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get manga by id' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Return manga by id' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -66,7 +71,8 @@ __decorate([
 ], MangaController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Update manga' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Manga updated successfully' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -75,15 +81,18 @@ __decorate([
 ], MangaController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete manga' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Manga deleted successfully' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], MangaController.prototype, "remove", null);
 exports.MangaController = MangaController = __decorate([
+    (0, swagger_1.ApiTags)('manga'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('manga'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [manga_service_1.MangaService])
 ], MangaController);
 //# sourceMappingURL=manga.controller.js.map

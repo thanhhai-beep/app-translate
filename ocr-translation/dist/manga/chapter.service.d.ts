@@ -1,13 +1,16 @@
 import { Repository } from 'typeorm';
 import { Chapter } from './entities/chapter.entity';
-import { CreateChapterDto, UpdateChapterDto } from './dto/create-chapter.dto';
+import { CreateChapterDto } from './dto/create-chapter.dto';
+import { UpdateChapterDto } from './dto/update-chapter.dto';
 export declare class ChapterService {
     private chapterRepository;
     constructor(chapterRepository: Repository<Chapter>);
-    create(mangaId: string, createChapterDto: CreateChapterDto): Promise<Chapter>;
-    findByMangaAndNumber(mangaId: string, chapterNumber: number): Promise<Chapter>;
-    findAllByManga(mangaId: string): Promise<Chapter[]>;
-    findOne(id: string, chapterNumber?: number): Promise<Chapter>;
-    update(id: string, updateChapterDto: Partial<UpdateChapterDto>): Promise<Chapter>;
+    create(createChapterDto: CreateChapterDto[]): Promise<Chapter[]>;
+    findAll(mangaId: string, page?: number, limit?: number): Promise<{
+        data: Chapter[];
+        total: number;
+    }>;
+    findOne(id: string): Promise<Chapter>;
+    update(id: string, updateChapterDto: UpdateChapterDto): Promise<Chapter>;
     remove(id: string): Promise<void>;
 }

@@ -24,26 +24,23 @@ let MangaService = class MangaService {
     }
     async create(createMangaDto) {
         const mangaData = {
-            title: createMangaDto.title,
-            originalTitle: createMangaDto.originalTitle,
-            description: createMangaDto.description,
-            author: createMangaDto.author,
-            artist: createMangaDto.artist,
-            publisher: createMangaDto.publisher,
-            status: createMangaDto.status,
-            genres: createMangaDto.genres ? JSON.stringify(createMangaDto.genres) : undefined,
-            coverImage: createMangaDto.coverImage,
-            sourceLanguage: createMangaDto.sourceLanguage,
-            targetLanguages: createMangaDto.targetLanguages ? JSON.stringify(createMangaDto.targetLanguages) : undefined,
-            tags: createMangaDto.tags ? JSON.stringify(createMangaDto.tags) : undefined,
-            viewCount: createMangaDto.viewCount || 0,
-            favoriteCount: createMangaDto.favoriteCount || 0,
+            ...createMangaDto,
+            genres: createMangaDto.genres?.join(','),
+            targetLanguages: createMangaDto.targetLanguages?.join(','),
+            tags: createMangaDto.tags?.join(',')
         };
         const manga = this.mangaRepository.create(mangaData);
         return this.mangaRepository.save(manga);
     }
-    async findAll() {
-        return this.mangaRepository.find();
+    async findAll(page = 1, limit = 10) {
+        const [data, total] = await this.mangaRepository.findAndCount({
+            skip: (page - 1) * limit,
+            take: limit,
+            order: {
+                createdAt: 'DESC',
+            },
+        });
+        return { data, total };
     }
     async findOne(id) {
         const manga = await this.mangaRepository.findOne({ where: { id } });
@@ -54,13 +51,7 @@ let MangaService = class MangaService {
     }
     async update(id, updateMangaDto) {
         const manga = await this.findOne(id);
-        const updateData = {
-            ...updateMangaDto,
-            genres: updateMangaDto.genres ? JSON.stringify(updateMangaDto.genres) : undefined,
-            targetLanguages: updateMangaDto.targetLanguages ? JSON.stringify(updateMangaDto.targetLanguages) : undefined,
-            tags: updateMangaDto.tags ? JSON.stringify(updateMangaDto.tags) : undefined,
-        };
-        Object.assign(manga, updateData);
+        Object.assign(manga, updateMangaDto);
         return this.mangaRepository.save(manga);
     }
     async remove(id) {

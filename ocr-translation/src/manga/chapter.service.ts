@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Chapter } from './entities/chapter.entity';
-import { CreateChapterDto, UpdateChapterDto } from './dto/create-chapter.dto';
+import { CreateChapterDto } from './dto/create-chapter.dto';
+import { UpdateChapterDto } from './dto/update-chapter.dto';
 
 @Injectable()
 export class ChapterService {
@@ -11,106 +12,37 @@ export class ChapterService {
     private chapterRepository: Repository<Chapter>,
   ) {}
 
-  async create(mangaId: string, createChapterDto: CreateChapterDto): Promise<Chapter> {
-    const chapterData = {
-      mangaId: mangaId,
-      number: createChapterDto.chapterNumber,
-      title: createChapterDto.title,
-      description: createChapterDto.description,
-      pageUrls: createChapterDto.pageUrls ? JSON.stringify(createChapterDto.pageUrls) : null,
-      sourceLanguage: createChapterDto.sourceLanguage,
-      targetLanguages: createChapterDto.targetLanguages ? JSON.stringify(createChapterDto.targetLanguages) : null,
-    };
-
-    const chapter = this.chapterRepository.create(chapterData as DeepPartial<Chapter>);
-    const savedChapter = await this.chapterRepository.save(chapter);
-    
-    // Parse JSON strings back to arrays
-    if (savedChapter.pageUrls) {
-      savedChapter.pageUrls = savedChapter.pageUrls;
-    }
-    if (savedChapter.targetLanguages) {
-      savedChapter.targetLanguages = savedChapter.targetLanguages
-    }
-    
-    return savedChapter;
+  async create(createChapterDto: CreateChapterDto[]): Promise<Chapter[]> {
+    const chapters = this.chapterRepository.create(createChapterDto as any);
+    return this.chapterRepository.save(chapters);
   }
 
-  async findByMangaAndNumber(mangaId: string, chapterNumber: number): Promise<Chapter> {
-    const chapter = await this.chapterRepository.findOne({
-      where: { mangaId, number: chapterNumber },
-    });
-    if (!chapter) {
-      throw new NotFoundException(`Chapter ${chapterNumber} not found for manga ${mangaId}`);
-    }
-    
-    // Parse JSON strings back to arrays
-    if (chapter.pageUrls) {
-      chapter.pageUrls = chapter.pageUrls;
-    }
-    if (chapter.targetLanguages) {
-      chapter.targetLanguages = chapter.targetLanguages;
-    }
-    
-    return chapter;
-  }
 
-  async findAllByManga(mangaId: string): Promise<Chapter[]> {
-    const chapters = await this.chapterRepository.find({
+  async findAll(mangaId: string, page: number = 1, limit: number = 10): Promise<{ data: Chapter[]; total: number }> {
+    const [data, total] = await this.chapterRepository.findAndCount({
       where: { mangaId },
-      order: { number: 'ASC' },
+      skip: (page - 1) * limit,
+      take: limit,
+      order: {
+        number: 'ASC',
+      },
     });
-    
-    // Parse JSON strings back to arrays for each chapter
-    return chapters.map(chapter => {
-      if (chapter.pageUrls) {
-        chapter.pageUrls = chapter.pageUrls;
-      }
-      if (chapter.targetLanguages) {
-        chapter.targetLanguages = chapter.targetLanguages;
-      }
-      return chapter;
-    });
+
+    return { data, total };
   }
 
-  async findOne(id: string, chapterNumber?: number): Promise<Chapter> {
+  async findOne(id: string): Promise<Chapter> {
     const chapter = await this.chapterRepository.findOne({ where: { id } });
     if (!chapter) {
       throw new NotFoundException(`Chapter with ID ${id} not found`);
     }
-    
-    // Parse JSON strings back to arrays
-    if (chapter.pageUrls) {
-      chapter.pageUrls = chapter.pageUrls;
-    }
-    if (chapter.targetLanguages) {
-      chapter.targetLanguages = chapter.targetLanguages;
-    }
-    
     return chapter;
   }
 
-  async update(id: string, updateChapterDto: Partial<UpdateChapterDto>): Promise<Chapter> {
+  async update(id: string, updateChapterDto: UpdateChapterDto): Promise<Chapter> {
     const chapter = await this.findOne(id);
-    
-    const updateData: Partial<Chapter> = {
-      ...updateChapterDto,
-      pageUrls: updateChapterDto.pageUrls ? JSON.stringify(updateChapterDto.pageUrls) : undefined,
-      targetLanguages: updateChapterDto.targetLanguages ? JSON.stringify(updateChapterDto.targetLanguages) : undefined,
-    };
-
-    Object.assign(chapter, updateData);
-    const updatedChapter = await this.chapterRepository.save(chapter);
-    
-    // Parse JSON strings back to arrays
-    if (updatedChapter.pageUrls) {
-      updatedChapter.pageUrls = updatedChapter.pageUrls;
-    }
-    if (updatedChapter.targetLanguages) {
-      updatedChapter.targetLanguages = updatedChapter.targetLanguages;
-    }
-    
-    return updatedChapter;
+    Object.assign(chapter, updateChapterDto);
+    return this.chapterRepository.save(chapter);
   }
 
   async remove(id: string): Promise<void> {

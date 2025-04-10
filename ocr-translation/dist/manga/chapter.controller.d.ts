@@ -4,9 +4,12 @@ import { UpdateChapterDto } from './dto/update-chapter.dto';
 export declare class ChapterController {
     private readonly chapterService;
     constructor(chapterService: ChapterService);
-    create(mangaId: string, createChapterDto: CreateChapterDto): Promise<import("./entities").Chapter>;
-    findAll(mangaId: string): Promise<import("./entities").Chapter[]>;
-    findOne(mangaId: string, chapterNumber: number): Promise<import("./entities").Chapter>;
-    update(mangaId: string, updateChapterDto: UpdateChapterDto): Promise<import("./entities").Chapter>;
-    remove(mangaId: string): Promise<void>;
+    create(createChapterDto: CreateChapterDto): Promise<import("./entities").Chapter[]>;
+    findAll(mangaId: string, page?: number, limit?: number): Promise<{
+        data: import("./entities").Chapter[];
+        total: number;
+    }>;
+    findOne(id: string): Promise<import("./entities").Chapter>;
+    update(id: string, updateChapterDto: UpdateChapterDto): Promise<import("./entities").Chapter>;
+    remove(id: string): Promise<void>;
 }

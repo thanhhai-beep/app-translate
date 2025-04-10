@@ -2,7 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Manga } from './entities/manga.entity';
-import { CreateMangaDto, UpdateMangaDto } from './dto/create-manga.dto';
+import { CreateMangaDto } from './dto/create-manga.dto';
+import { UpdateMangaDto } from './dto/update-manga.dto';
 
 @Injectable()
 export class MangaService {
@@ -12,29 +13,26 @@ export class MangaService {
   ) {}
 
   async create(createMangaDto: CreateMangaDto): Promise<Manga> {
-    const mangaData: Partial<Manga> = {
-      title: createMangaDto.title,
-      originalTitle: createMangaDto.originalTitle,
-      description: createMangaDto.description,
-      author: createMangaDto.author,
-      artist: createMangaDto.artist,
-      publisher: createMangaDto.publisher,
-      status: createMangaDto.status,
-      genres: createMangaDto.genres ? JSON.stringify(createMangaDto.genres) : undefined,
-      coverImage: createMangaDto.coverImage,
-      sourceLanguage: createMangaDto.sourceLanguage,
-      targetLanguages: createMangaDto.targetLanguages ? JSON.stringify(createMangaDto.targetLanguages) : undefined,
-      tags: createMangaDto.tags ? JSON.stringify(createMangaDto.tags) : undefined,
-      viewCount: createMangaDto.viewCount || 0,
-      favoriteCount: createMangaDto.favoriteCount || 0,
+    const mangaData = {
+      ...createMangaDto,
+      genres: createMangaDto.genres?.join(','),
+      targetLanguages: createMangaDto.targetLanguages?.join(','),
+      tags: createMangaDto.tags?.join(',')
     };
-
     const manga = this.mangaRepository.create(mangaData);
     return this.mangaRepository.save(manga);
   }
 
-  async findAll(): Promise<Manga[]> {
-    return this.mangaRepository.find();
+  async findAll(page: number = 1, limit: number = 10): Promise<{ data: Manga[]; total: number }> {
+    const [data, total] = await this.mangaRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return { data, total };
   }
 
   async findOne(id: string): Promise<Manga> {
@@ -45,17 +43,9 @@ export class MangaService {
     return manga;
   }
 
-  async update(id: string, updateMangaDto: Partial<UpdateMangaDto>): Promise<Manga> {
+  async update(id: string, updateMangaDto: UpdateMangaDto): Promise<Manga> {
     const manga = await this.findOne(id);
-    
-    const updateData: Partial<Manga> = {
-      ...updateMangaDto,
-      genres: updateMangaDto.genres ? JSON.stringify(updateMangaDto.genres) : undefined,
-      targetLanguages: updateMangaDto.targetLanguages ? JSON.stringify(updateMangaDto.targetLanguages) : undefined,
-      tags: updateMangaDto.tags ? JSON.stringify(updateMangaDto.tags) : undefined,
-    };
-
-    Object.assign(manga, updateData);
+    Object.assign(manga, updateMangaDto);
     return this.mangaRepository.save(manga);
   }
 

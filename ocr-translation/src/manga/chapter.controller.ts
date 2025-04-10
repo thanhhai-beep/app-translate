@@ -1,53 +1,53 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { ChapterService } from './chapter.service';
 import { CreateChapterDto } from './dto/create-chapter.dto';
 import { UpdateChapterDto } from './dto/update-chapter.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../auth/enums/role.enum';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
-@Controller('manga/:mangaId/chapters')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiTags('chapter')
+@ApiBearerAuth()
+@Controller('chapter')
+@UseGuards(JwtAuthGuard)
 export class ChapterController {
   constructor(private readonly chapterService: ChapterService) {}
 
   @Post()
-  @Roles(Role.ADMIN)
-  create(
-    @Param('mangaId') mangaId: string,
-    @Body() createChapterDto: CreateChapterDto,
-  ) {
-    return this.chapterService.create(mangaId, createChapterDto);
+  @ApiOperation({ summary: 'Create new chapter' })
+  @ApiResponse({ status: 201, description: 'Chapter created successfully' })
+  create(@Body() createChapterDto: CreateChapterDto) {
+    return this.chapterService.create(createChapterDto as any);
   }
 
   @Get()
-  findAll(@Param('mangaId') mangaId: string) {
-    return this.chapterService.findAllByManga(mangaId);
+  @ApiOperation({ summary: 'Get all chapters with pagination' })
+  @ApiResponse({ status: 200, description: 'Return all chapters' })
+  findAll(
+    @Query('mangaId') mangaId: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.chapterService.findAll(mangaId, page, limit);
   }
 
-  @Get(':chapterNumber')
-  findOne(
-    @Param('mangaId') mangaId: string,
-    @Param('chapterNumber') chapterNumber: number,
-  ) {
-    return this.chapterService.findOne(mangaId, chapterNumber);
+  @Get(':id')
+  @ApiOperation({ summary: 'Get chapter by id' })
+  @ApiResponse({ status: 200, description: 'Return chapter by id' })
+  findOne(@Param('id') id: string) {
+    return this.chapterService.findOne(id);
   }
 
-  @Patch(':chapterNumber')
-  @Roles(Role.ADMIN)
-  update(
-    @Param('mangaId') mangaId: string,
-    @Body() updateChapterDto: UpdateChapterDto,
-  ) {
-    return this.chapterService.update(mangaId, updateChapterDto);
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update chapter' })
+  @ApiResponse({ status: 200, description: 'Chapter updated successfully' })
+  update(@Param('id') id: string, @Body() updateChapterDto: UpdateChapterDto) {
+    return this.chapterService.update(id, updateChapterDto);
   }
 
-  @Delete(':chapterNumber')
-  @Roles(Role.ADMIN)
-  remove(
-    @Param('mangaId') mangaId: string
-  ) {
-    return this.chapterService.remove(mangaId);
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete chapter' })
+  @ApiResponse({ status: 200, description: 'Chapter deleted successfully' })
+  remove(@Param('id') id: string) {
+    return this.chapterService.remove(id);
   }
 } 
