@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Res, HttpStatus, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Res, HttpStatus, Get, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
@@ -39,16 +39,16 @@ export class AuthController {
       const { email, password } = loginDto;
       const isValid = await this.authService.validateUser(email, password);
 
-      // if (!isValid) {
-      //   return {
-      //     statusCode: HttpStatus.UNAUTHORIZED,
-      //     message: 'Invalid email or password',
-      //   };
-      // }
+      if (!isValid) {
+        return {
+          statusCode: HttpStatus.UNAUTHORIZED,
+          message: 'Invalid email or password',
+        };
+      }
 
       const token = await this.authService.login(email);
 
-      res.cookie('tokenn', token, {
+      res.cookie('token', token, {
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
         sameSite: 'strict',

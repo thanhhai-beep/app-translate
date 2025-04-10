@@ -27,8 +27,14 @@ let AuthController = class AuthController {
         try {
             const { email, password } = loginDto;
             const isValid = await this.authService.validateUser(email, password);
+            if (!isValid) {
+                return {
+                    statusCode: common_1.HttpStatus.UNAUTHORIZED,
+                    message: 'Invalid email or password',
+                };
+            }
             const token = await this.authService.login(email);
-            res.cookie('tokenn', token, {
+            res.cookie('token', token, {
                 httpOnly: true,
                 maxAge: 24 * 60 * 60 * 1000,
                 sameSite: 'strict',

@@ -1,5 +1,7 @@
 export const checkAuth = async (): Promise<boolean> => {
   try {
+    // const token = cookies.get('token');
+    // console.log('🔥 token:', token);
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/check`, {
       method: 'GET',
       credentials: 'include',
