@@ -9,25 +9,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Chapter = exports.ContentType = exports.ChapterStatus = exports.ChapterType = void 0;
+exports.Chapter = exports.ChapterStatus = exports.ChapterType = void 0;
 const typeorm_1 = require("typeorm");
 const manga_entity_1 = require("../../manga/entities/manga.entity");
 var ChapterType;
 (function (ChapterType) {
-    ChapterType["TEXT"] = "text";
-    ChapterType["IMAGE"] = "image";
+    ChapterType["TEXT"] = "TEXT";
+    ChapterType["IMAGE"] = "IMAGE";
 })(ChapterType || (exports.ChapterType = ChapterType = {}));
 var ChapterStatus;
 (function (ChapterStatus) {
-    ChapterStatus["DRAFT"] = "draft";
-    ChapterStatus["PUBLISHED"] = "published";
-    ChapterStatus["HIDDEN"] = "hidden";
+    ChapterStatus["DRAFT"] = "DRAFT";
+    ChapterStatus["PUBLISHED"] = "PUBLISHED";
+    ChapterStatus["HIDDEN"] = "HIDDEN";
 })(ChapterStatus || (exports.ChapterStatus = ChapterStatus = {}));
-var ContentType;
-(function (ContentType) {
-    ContentType["TEXT"] = "text";
-    ContentType["IMAGE"] = "image";
-})(ContentType || (exports.ContentType = ContentType = {}));
 let Chapter = class Chapter {
     id;
     chapterNumber;
@@ -82,8 +77,8 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({
         type: 'enum',
-        enum: ContentType,
-        default: ContentType.TEXT
+        enum: ChapterType,
+        default: ChapterType.TEXT
     }),
     __metadata("design:type", String)
 ], Chapter.prototype, "contentType", void 0);

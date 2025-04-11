@@ -11,9 +11,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   const menuItems = [
     { label: 'Dashboard', path: '/dashboard', icon: '📊' },
-    { label: 'Categories', path: '/categories', icon: '📚' },
+    { label: 'Categories', path: '/categories', icon: '📑' },
     { label: 'Manga', path: '/manga', icon: '📚' },
-    { label: 'Chapters', path: '/chapters', icon: '📑' },
     { label: 'Translations', path: '/translations', icon: '🌐' },
     { label: 'Users', path: '/users', icon: '👥' },
     { label: 'Settings', path: '/settings', icon: '⚙️' },

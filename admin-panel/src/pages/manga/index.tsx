@@ -3,8 +3,9 @@ import { useRouter } from 'next/router';
 import { useMangas, useDeleteManga } from '@/hooks/useManga';
 import { MangaType, MangaStatus, Manga } from '@/types/manga';
 import MainLayout from '@/layouts/MainLayout';
+import PageTitle from '@/components/PageTitle';
 
-export default function MangaList() {
+export default function MangaListPage() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -57,6 +58,7 @@ console.log(data);
 
   return (
     <MainLayout>
+      <PageTitle title="Manga | Library" description="Browse and manage manga collection" />
       <div className="bg-white rounded-lg shadow">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">

@@ -6,6 +6,7 @@ import { MangaType, MangaStatus } from '@/types/manga';
 import MainLayout from '@/layouts/MainLayout';
 import { apiClient } from '@/lib/api-client';
 import { Manga } from '@/types/manga';
+import PageTitle from '@/components/PageTitle';
 
 interface UpdateMangaFormData extends Partial<Manga> {
   categoryIds: string[];
@@ -15,7 +16,7 @@ export default function EditManga() {
   const router = useRouter();
   const { id } = router.query;
   const mangaId = id as string;
-  const { data: mangaData } = useManga(mangaId);
+  const { data: mangaData, isLoading } = useManga(mangaId);
   const updateManga = useUpdateManga();
   const deleteManga = useDeleteManga();
   const { data: categoriesData } = useCategories(1, 100);
@@ -122,6 +123,15 @@ export default function EditManga() {
     }));
   };
 
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <PageTitle title="Manga | Details" description="View and edit manga details" />
+        <div className="p-6">Loading...</div>
+      </MainLayout>
+    );
+  }
+
   if (!mangaData) {
     return <div>Loading...</div>;
   }
@@ -134,6 +144,7 @@ export default function EditManga() {
 
   return (
     <MainLayout>
+      <PageTitle title={`${mangaData?.title || 'Manga'} | Details`} description="View and edit manga details" />
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold mb-1">Chỉnh sửa truyện</h1>

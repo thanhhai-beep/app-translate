@@ -1,6 +1,5 @@
 import { IsNumber, IsString, IsOptional, IsEnum, IsArray, IsNotEmpty } from 'class-validator';
 import { ChapterType, ChapterStatus } from '../entities/chapter.entity';
-import { ContentType } from '../entities/chapter.entity';
 
 export class UpdateChapterDto {
   @IsNotEmpty()
@@ -19,9 +18,9 @@ export class UpdateChapterDto {
   @IsOptional()
   type?: ChapterType;
 
-  @IsEnum(ContentType)
+  @IsEnum(ChapterType)
   @IsOptional()
-  contentType?: ContentType;
+  contentType?: ChapterType;
 
   @IsEnum(ChapterStatus)
   @IsOptional()

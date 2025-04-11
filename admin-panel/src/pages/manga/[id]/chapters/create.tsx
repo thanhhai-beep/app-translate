@@ -4,15 +4,16 @@ import { useCreateChapter } from '@/hooks/useChapters';
 import { ContentType, ChapterStatus } from '@/types/chapter';
 import MainLayout from '@/layouts/MainLayout';
 import { apiClient } from '@/lib/api-client';
+import PageTitle from '@/components/PageTitle';
 
-export default function CreateChapter() {
+export default function CreateChapterPage() {
   const router = useRouter();
-  const { id } = router.query;
+  const { id: mangaId } = router.query;
   const createChapter = useCreateChapter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
-    mangaId: id as string,
+    mangaId: mangaId as string,
     chapterNumber: '',
     title: '',
     content: '',
@@ -97,6 +98,7 @@ export default function CreateChapter() {
 
   return (
     <MainLayout>
+      <PageTitle title="Create Chapter | New" description="Create a new chapter" />
       <div className="bg-white rounded-lg shadow p-6">
         <h1 className="text-2xl font-bold mb-6">Thêm Chapter Mới</h1>
         

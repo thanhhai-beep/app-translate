@@ -6,12 +6,13 @@ import { MangaType, MangaStatus } from '@/types/manga';
 import MainLayout from '@/layouts/MainLayout';
 import { apiClient } from '@/lib/api-client';
 import { Manga } from '@/types/manga';
+import PageTitle from '@/components/PageTitle';
 
 interface CreateMangaFormData extends Partial<Manga> {
   categoryIds: string[];
 }
 
-export default function CreateManga() {
+export default function CreateMangaPage() {
   const router = useRouter();
   const createManga = useCreateManga();
   const { data: categoriesData } = useCategories(1, 100);
@@ -19,10 +20,12 @@ export default function CreateManga() {
 
   const [formData, setFormData] = useState<CreateMangaFormData>({
     title: '',
+    originalTitle: '',
     description: '',
     author: '',
-    type: MangaType.TEXT,
+    artist: '',
     status: MangaStatus.ONGOING,
+    type: MangaType.COMIC,
     coverImage: '',
     categoryIds: [],
   });
@@ -100,6 +103,7 @@ export default function CreateManga() {
 
   return (
     <MainLayout>
+      <PageTitle title="Create Manga | New" description="Create a new manga entry" />
       <div className="bg-white rounded-lg shadow p-6">
         <h1 className="text-2xl font-bold mb-6">Thêm truyện mới</h1>
         
@@ -115,6 +119,20 @@ export default function CreateManga() {
               value={formData.title}
               onChange={handleChange}
               required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="originalTitle" className="block text-sm font-medium text-gray-700">
+              Tiêu đề gốc
+            </label>
+            <input
+              type="text"
+              id="originalTitle"
+              name="originalTitle"
+              value={formData.originalTitle}
+              onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
@@ -145,6 +163,20 @@ export default function CreateManga() {
               value={formData.author}
               onChange={handleChange}
               required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="artist" className="block text-sm font-medium text-gray-700">
+              Nghệ sĩ
+            </label>
+            <input
+              type="text"
+              id="artist"
+              name="artist"
+              value={formData.artist}
+              onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
           </div>

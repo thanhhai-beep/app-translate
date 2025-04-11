@@ -17,7 +17,7 @@ class CreateChapterDto {
     chapterNumber;
     title;
     content;
-    contentType;
+    ChapterType;
     status;
 }
 exports.CreateChapterDto = CreateChapterDto;
@@ -42,10 +42,10 @@ __decorate([
     __metadata("design:type", String)
 ], CreateChapterDto.prototype, "content", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(chapter_entity_1.ContentType),
+    (0, class_validator_1.IsEnum)(chapter_entity_1.ChapterType),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateChapterDto.prototype, "contentType", void 0);
+], CreateChapterDto.prototype, "ChapterType", void 0);
 __decorate([
     (0, class_validator_1.IsEnum)(chapter_entity_1.ChapterStatus),
     (0, class_validator_1.IsOptional)(),

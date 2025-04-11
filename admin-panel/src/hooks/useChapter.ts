@@ -2,13 +2,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 
 interface Chapter {
-  id: string;
-  chapterNumber: number;
+  id?: string;
+  chapterNumber: number | string;
   title: string;
   content: string;
-  contentType: 'text' | 'image';
-  status: 'draft' | 'published' | 'archived';
-  createdAt: string;
+  contentType: 'TEXT' | 'IMAGE';
+  status: 'DRAFT' | 'PUBLISHED' | 'HIDDEN';
+  createdAt?: string;
 }
 
 interface ChapterResponse {
@@ -20,8 +20,8 @@ interface CreateChapterData {
   chapterNumber: number;
   title: string;
   content: string | File;
-  contentType: 'text' | 'image';
-  status: 'draft' | 'published' | 'archived';
+  contentType: 'TEXT' | 'IMAGE';
+  status: 'DRAFT' | 'PUBLISHED' | 'HIDDEN';
 }
 
 export const useChapters = (mangaId: string, page: number, pageSize: number) => {
@@ -68,10 +68,10 @@ export const useCreateChapter = () => {
 export const useUpdateChapter = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ mangaId, chapterId, data }: { mangaId: string; chapterId: string; data: FormData }) => {
+    mutationFn: async ({ mangaId, chapterId, data }: { mangaId: string; chapterId: string; data: Chapter }) => {
       const response = await apiClient.put(`/manga/${mangaId}/chapters/${chapterId}`, data, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       });
       return response.data;

@@ -6,16 +6,23 @@ export enum ContentType {
 export enum ChapterStatus {
   DRAFT = 'DRAFT',
   PUBLISHED = 'PUBLISHED',
+  HIDDEN = 'HIDDEN'
+}
+
+export enum ChapterType {
+  TEXT = 'TEXT',
+  IMAGE = 'IMAGE',
 }
 
 export interface Chapter {
   id: string;
   mangaId: string;
-  chapterNumber: number;
+  chapterNumber: number | string;
   title: string;
   content: string;
-  contentType: ContentType;
+  contentType: ChapterType;
   status: ChapterStatus;
+  images: string[];
   createdAt: Date;
   updatedAt: Date;
 }

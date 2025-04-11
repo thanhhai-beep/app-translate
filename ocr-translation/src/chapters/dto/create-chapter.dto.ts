@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
-import { ChapterStatus, ContentType } from '../entities/chapter.entity';
+import { ChapterStatus, ChapterType } from '../entities/chapter.entity';
 
 export class CreateChapterDto {
   @IsUUID()
@@ -18,9 +18,9 @@ export class CreateChapterDto {
   @IsOptional()
   content?: string;
 
-  @IsEnum(ContentType)
+  @IsEnum(ChapterType)
   @IsNotEmpty()
-  contentType: ContentType;
+  ChapterType: ChapterType;
 
   @IsEnum(ChapterStatus)
   @IsOptional()

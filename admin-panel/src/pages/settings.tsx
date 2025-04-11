@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import MainLayout from '../layouts/MainLayout';
+import MainLayout from '@/layouts/MainLayout';
+import PageTitle from '@/components/PageTitle';
 
 interface Settings {
   siteName: string;
@@ -12,13 +13,13 @@ interface Settings {
   maintenanceMode: boolean;
 }
 
-const SettingsPage: React.FC = () => {
+export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings>({
-    siteName: 'Manga Translation Platform',
-    siteDescription: 'A platform for manga translation and management',
+    siteName: '',
+    siteDescription: '',
     defaultLanguage: 'en',
     maxUploadSize: 10,
-    allowedFileTypes: ['jpg', 'jpeg', 'png', 'webp'],
+    allowedFileTypes: ['jpg', 'jpeg', 'png', 'gif'],
     enableRegistration: true,
     enableComments: true,
     maintenanceMode: false,
@@ -39,6 +40,7 @@ const SettingsPage: React.FC = () => {
 
   return (
     <MainLayout>
+      <PageTitle title="Settings | Configuration" description="Configure system settings and preferences" />
       <div className="bg-white rounded-lg shadow">
         <div className="p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">Settings</h2>
@@ -158,6 +160,4 @@ const SettingsPage: React.FC = () => {
       </div>
     </MainLayout>
   );
-};
-
-export default SettingsPage; 
+} 

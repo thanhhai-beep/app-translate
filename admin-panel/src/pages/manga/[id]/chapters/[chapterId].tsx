@@ -1,53 +1,50 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useUpdateChapter } from '@/hooks/useChapter';
+import { useUpdateChapter, useChapter } from '@/hooks/useChapter';
 import { ChapterType, Chapter, ChapterStatus } from '@/types/chapter';
 import MainLayout from '@/layouts/MainLayout';
 import { apiClient } from '@/lib/api-client';
+import PageTitle from '@/components/PageTitle';
 
 export default function EditChapter() {
   const router = useRouter();
   const { id: mangaId, chapterId } = router.query;
   const updateChapter = useUpdateChapter();
+  const { data: chapter, isLoading } = useChapter(mangaId as string, chapterId as string);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     chapterNumber: '',
     title: '',
     content: '',
-    contentType: ChapterType.TEXT,
+    contentType: ChapterType?.TEXT,
     status: ChapterStatus.DRAFT,
     images: [] as string[],
   });
 
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchChapter = async () => {
-      if (!mangaId || !chapterId) return;
-      try {
-        const response = await apiClient.get<Chapter>(`/manga/${mangaId}/chapters/${chapterId}`);
-        const chapter = response.data;
-        
-        setFormData({
-          chapterNumber: chapter.chapterNumber,
-          title: chapter.title,
-          content: chapter.content,
-          contentType: chapter.contentType as ChapterType,
-          status: chapter.status,
-          images: chapter.images || [],
-        });
-        setPreviewImages(chapter.images || []);
-      } catch (error) {
-        console.error('Failed to fetch chapter:', error);
-      } finally {
-        setIsLoading(false);
+    if (chapter) {
+      // Determine content type based on whether chapter has images
+      const contentType = chapter.images && chapter.images.length > 0 ? 'image' : 'text';
+      
+      setFormData({
+        chapterNumber: chapter.chapterNumber.toString(),
+        title: chapter.title,
+        content: chapter.content,
+        status: chapter.status,
+        contentType: contentType,
+        images: chapter.images || [],
+      });
+      
+      // If chapter has images, set preview URLs
+      if (chapter.images && chapter.images.length > 0) {
+        setPreviewImages(chapter.images.map(img => img.url));
       }
-    };
-    fetchChapter();
-  }, [mangaId, chapterId]);
+    }
+  }, [chapter]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -98,21 +95,10 @@ export default function EditChapter() {
     if (!mangaId || !chapterId) return;
 
     try {
-      const formDataToSend = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-          value.forEach(item => formDataToSend.append(key, item));
-        } else if (key === 'chapterNumber') {
-          formDataToSend.append(key, Number(value).toString());
-        } else {
-          formDataToSend.append(key, value);
-        }
-      });
-
       await updateChapter.mutateAsync({
         mangaId: mangaId as string,
         chapterId: chapterId as string,
-        data: formDataToSend,
+        data: formData,
       });
       router.push(`/manga/${mangaId}/chapters`);
     } catch (error) {
@@ -142,15 +128,15 @@ export default function EditChapter() {
   if (isLoading) {
     return (
       <MainLayout>
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        </div>
+        <PageTitle title="Chapter | Edit" description="Edit chapter content and details" />
+        <div className="p-6">Loading...</div>
       </MainLayout>
     );
   }
 
   return (
     <MainLayout>
+      <PageTitle title={`Chapter ${chapter?.chapterNumber}: ${chapter?.title} | Edit`} description="Edit chapter content and details" />
       <div className="bg-white rounded-lg shadow p-6">
         <h1 className="text-2xl font-bold mb-6">Chỉnh sửa chapter</h1>
         

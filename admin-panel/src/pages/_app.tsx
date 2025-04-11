@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { checkAuth } from '@/utils/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { AuthProvider } from '@/contexts/AuthContext';
+import Head from 'next/head';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,7 +52,14 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Component {...pageProps} />
+      <AuthProvider>
+        <Head>
+          <meta name="description" content="Admin panel for manga translation management" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <Component {...pageProps} />
+      </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

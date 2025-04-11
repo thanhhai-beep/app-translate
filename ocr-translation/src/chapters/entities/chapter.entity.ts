@@ -2,19 +2,14 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { Manga } from '../../manga/entities/manga.entity';
 
 export enum ChapterType {
-  TEXT = 'text',
-  IMAGE = 'image',
+  TEXT = 'TEXT',
+  IMAGE = 'IMAGE',
 }
 
 export enum ChapterStatus {
-  DRAFT = 'draft',
-  PUBLISHED = 'published',
-  HIDDEN = 'hidden'
-}
-
-export enum ContentType {
-  TEXT = 'text',
-  IMAGE = 'image'
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  HIDDEN = 'HIDDEN'
 }
 
 @Entity()
@@ -50,10 +45,10 @@ export class Chapter {
 
   @Column({
     type: 'enum',
-    enum: ContentType,
-    default: ContentType.TEXT
+    enum: ChapterType,
+    default: ChapterType.TEXT
   })
-  contentType: ContentType;
+  contentType: ChapterType;
 
   @ManyToOne(() => Manga, (manga) => manga.chapters)
   @JoinColumn({ name: 'mangaId' })

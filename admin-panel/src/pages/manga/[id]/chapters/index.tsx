@@ -2,8 +2,17 @@ import { useRouter } from 'next/router';
 import { useChapters, useDeleteChapter } from '@/hooks/useChapter';
 import MainLayout from '@/layouts/MainLayout';
 import { useState } from 'react';
+import PageTitle from '@/components/PageTitle';
 
-export default function ChapterList() {
+interface Chapter {
+  id: string;
+  chapterNumber: number;
+  title: string;
+  status: string;
+  createdAt: string;
+}
+
+export default function ChaptersListPage() {
   const router = useRouter();
   const { id: mangaId } = router.query;
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,6 +34,7 @@ export default function ChapterList() {
   if (isLoading) {
     return (
       <MainLayout>
+        <PageTitle title="Chapters | Management" description="Manage manga chapters and translations" />
         <div className="p-6">Loading...</div>
       </MainLayout>
     );
@@ -32,9 +42,10 @@ export default function ChapterList() {
 
   return (
     <MainLayout>
+      <PageTitle title="Chapters | Management" description="Manage manga chapters and translations" />
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Chapters</h1>
+          <h1 className="text-2xl font-bold">Chapters Management</h1>
           <button
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
             onClick={() => router.push(`/manga/${mangaId}/chapters/create`)}
@@ -75,27 +86,27 @@ export default function ChapterList() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      chapter.status === 'published' ? 'bg-green-100 text-green-800' :
-                      chapter.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+                      chapter.status === 'PUBLISHED' ? 'bg-green-100 text-green-800' :
+                      chapter.status === 'DRAFT' ? 'bg-yellow-100 text-yellow-800' :
                       'bg-gray-100 text-gray-800'
                     }`}>
                       {chapter.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200">
-                    {new Date(chapter.createdAt).toLocaleDateString()}
+                    {chapter.createdAt ? new Date(chapter.createdAt).toLocaleDateString() : 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200">
                     <div className="flex space-x-2">
                       <button
                         className="text-blue-600 hover:text-blue-900"
-                        onClick={() => handleEdit(chapter.id)}
+                        onClick={() => handleEdit(chapter.id || '')}
                       >
                         Edit
                       </button>
                       <button
                         className="text-red-600 hover:text-red-900"
-                        onClick={() => handleDelete(chapter.id)}
+                        onClick={() => handleDelete(chapter.id || '')}
                       >
                         Delete
                       </button>

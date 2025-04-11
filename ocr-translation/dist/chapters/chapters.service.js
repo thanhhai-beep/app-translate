@@ -59,7 +59,7 @@ let ChaptersService = class ChaptersService {
         if (!chapter) {
             throw new common_1.NotFoundException(`Chapter with ID ${id} not found`);
         }
-        if (chapter.contentType === 'image') {
+        if (chapter.contentType === 'IMAGE') {
             chapter.content = (process.env.DOMAIN || 'http://localhost:3000') + chapter.content;
         }
         return chapter;
