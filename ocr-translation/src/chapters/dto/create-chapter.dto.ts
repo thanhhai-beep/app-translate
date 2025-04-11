@@ -1,24 +1,28 @@
-import { IsNumber, IsString, IsOptional, IsEnum } from 'class-validator';
-import { ChapterStatus } from '../entities/chapter.entity';
-import { Type } from 'class-transformer';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { ChapterStatus, ContentType } from '../entities/chapter.entity';
 
 export class CreateChapterDto {
-  @Type(() => Number)
+  @IsUUID()
+  @IsNotEmpty()
+  mangaId: string;
+
   @IsNumber()
+  @IsNotEmpty()
   chapterNumber: number;
 
   @IsString()
+  @IsNotEmpty()
   title: string;
 
   @IsString()
   @IsOptional()
   content?: string;
 
+  @IsEnum(ContentType)
+  @IsNotEmpty()
+  contentType: ContentType;
+
   @IsEnum(ChapterStatus)
   @IsOptional()
   status?: ChapterStatus;
-
-  @IsString()
-  @IsOptional()
-  contentType?: 'text' | 'image';
 } 

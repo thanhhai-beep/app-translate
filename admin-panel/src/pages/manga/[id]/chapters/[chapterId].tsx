@@ -1,57 +1,112 @@
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useChapter, useUpdateChapter } from '@/hooks/useChapter';
+import { useUpdateChapter } from '@/hooks/useChapter';
+import { ChapterType, Chapter, ChapterStatus } from '@/types/chapter';
 import MainLayout from '@/layouts/MainLayout';
-import { useEffect, useState, useRef } from 'react';
+import { apiClient } from '@/lib/api-client';
 
 export default function EditChapter() {
   const router = useRouter();
   const { id: mangaId, chapterId } = router.query;
   const updateChapter = useUpdateChapter();
-  const { data: chapter, isLoading } = useChapter(mangaId as string, chapterId as string);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [formData, setFormData] = useState({
     chapterNumber: '',
     title: '',
     content: '',
-    status: 'draft',
-    contentType: 'text', // 'text' or 'image'
+    contentType: ChapterType.TEXT,
+    status: ChapterStatus.DRAFT,
+    images: [] as string[],
   });
-  const [files, setFiles] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string>("");
+
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (chapter) {
-      setFormData({
-        chapterNumber: chapter.chapterNumber.toString(),
-        title: chapter.title,
-        content: chapter.content,
-        status: chapter.status,
-        contentType: chapter.contentType,
-      });
-      
-      // If chapter has images, set preview URLs
-      if (chapter.content && chapter.contentType === 'image') {
-        setPreviewUrls(chapter.content);
+    const fetchChapter = async () => {
+      if (!mangaId || !chapterId) return;
+      try {
+        const response = await apiClient.get<Chapter>(`/manga/${mangaId}/chapters/${chapterId}`);
+        const chapter = response.data;
+        
+        setFormData({
+          chapterNumber: chapter.chapterNumber,
+          title: chapter.title,
+          content: chapter.content,
+          contentType: chapter.contentType as ChapterType,
+          status: chapter.status,
+          images: chapter.images || [],
+        });
+        setPreviewImages(chapter.images || []);
+      } catch (error) {
+        console.error('Failed to fetch chapter:', error);
+      } finally {
+        setIsLoading(false);
       }
+    };
+    fetchChapter();
+  }, [mangaId, chapterId]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    setIsUploading(true);
+    try {
+      const uploadedImages: string[] = [];
+      const newPreviewImages: string[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await apiClient.post<{ path: string }>('/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        uploadedImages.push(`${process.env.NEXT_PUBLIC_API_URL}${response.data.path}`);
+        
+        // Create preview
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviewImages.push(reader.result as string);
+          if (newPreviewImages.length === files.length) {
+            setPreviewImages(prev => [...prev, ...newPreviewImages]);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, ...uploadedImages],
+      }));
+    } catch (error) {
+      console.error('Error uploading images:', error);
+    } finally {
+      setIsUploading(false);
     }
-  }, [chapter]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!mangaId || !chapterId) return;
+
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append('chapterNumber', formData.chapterNumber);
-      formDataToSend.append('title', formData.title);
-      formDataToSend.append('status', formData.status);
-      formDataToSend.append('contentType', formData.contentType);
-
-      if (formData.contentType === 'text') {
-        formDataToSend.append('content', formData.content);
-      }
-      
-      // Append each file to formData
-      files.forEach((file) => {
-        formDataToSend.append(`images`, file);
+      Object.entries(formData).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach(item => formDataToSend.append(key, item));
+        } else if (key === 'chapterNumber') {
+          formDataToSend.append(key, Number(value).toString());
+        } else {
+          formDataToSend.append(key, value);
+        }
       });
 
       await updateChapter.mutateAsync({
@@ -67,46 +122,45 @@ export default function EditChapter() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Reset files when switching to text content type
-    if (name === 'contentType' && value === 'text') {
-      setFiles([]);
-      setPreviewUrls("");
-    }
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrls(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      contentType: value as ChapterType,
+      content: '',
+      images: [],
+    }));
+    setPreviewImages([]);
   };
 
   if (isLoading) {
     return (
       <MainLayout>
-        <div className="p-6">Loading...</div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
       </MainLayout>
     );
   }
 
   return (
     <MainLayout>
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">Edit Chapter</h1>
+      <div className="bg-white rounded-lg shadow p-6">
+        <h1 className="text-2xl font-bold mb-6">Chỉnh sửa chapter</h1>
         
-        <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="chapterNumber" className="block text-sm font-medium text-gray-700">
-              Chapter Number
+              Số chapter
             </label>
             <input
-              type="number"
+              type="text"
               id="chapterNumber"
               name="chapterNumber"
               value={formData.chapterNumber}
@@ -118,7 +172,7 @@ export default function EditChapter() {
 
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-              Title
+              Tiêu đề
             </label>
             <input
               type="text"
@@ -132,26 +186,26 @@ export default function EditChapter() {
           </div>
 
           <div>
-            <label htmlFor="contentType" className="block text-sm font-medium text-gray-700">
-              Content Type
+            <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+              Loại chapter
             </label>
             <select
-              id="contentType"
-              name="contentType"
+              id="type"
+              name="type"
               value={formData.contentType}
-              onChange={handleChange}
+              onChange={handleTypeChange}
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             >
-              <option value="text">Text</option>
-              <option value="image">Image</option>
+              <option value={ChapterType.TEXT}>Truyện chữ</option>
+              <option value={ChapterType.IMAGE}>Truyện tranh</option>
             </select>
           </div>
 
-          {formData.contentType === 'text' ? (
+          {formData.contentType === ChapterType.TEXT ? (
             <div>
               <label htmlFor="content" className="block text-sm font-medium text-gray-700">
-                Text Content
+                Nội dung
               </label>
               <textarea
                 id="content"
@@ -166,56 +220,58 @@ export default function EditChapter() {
           ) : (
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Image Content
+                Ảnh
               </label>
-              <input
-                type="file"
-                id="content"
-                ref={fileInputRef}
-                onChange={handleImageChange}
-                accept="image/*"
-                required
-                className="mt-1 block w-full"
-              />
-              {previewUrls && (
-                <div className="mt-4">
-                  <img
-                    src={previewUrls}
-                    alt="Preview"
-                    className="max-w-full h-auto rounded-lg shadow"
-                  />
-                </div>
-              )}
-
-              {/* Preview uploaded images */}
-              {/* {previewUrls.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-                  {previewUrls.map((url, index) => (
+              <div className="mt-1">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                >
+                  {isUploading ? 'Đang tải lên...' : 'Chọn ảnh'}
+                </button>
+                <div className="mt-4 grid grid-cols-10 gap-4">
+                  {previewImages.map((preview, index) => (
                     <div key={index} className="relative">
                       <img
-                        src={url}
+                        src={preview}
                         alt={`Preview ${index + 1}`}
-                        className="h-32 w-full object-cover rounded-md"
+                        className="w-full h-28 object-cover rounded"
                       />
                       <button
                         type="button"
-                        onClick={() => removeFile(index)}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                        onClick={() => {
+                          setPreviewImages(prev => prev.filter((_, i) => i !== index));
+                          setFormData(prev => ({
+                            ...prev,
+                            images: prev.images.filter((_, i) => i !== index),
+                          }));
+                        }}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       </button>
                     </div>
                   ))}
                 </div>
-              )} */}
+              </div>
             </div>
           )}
 
           <div>
             <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-              Status
+              Trạng thái
             </label>
             <select
               id="status"
@@ -225,19 +281,25 @@ export default function EditChapter() {
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             >
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
-              <option value="archived">Archived</option>
+              <option value={ChapterStatus.DRAFT}>Bản nháp</option>
+              <option value={ChapterStatus.PUBLISHED}>Đã xuất bản</option>
             </select>
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-end space-x-4">
+            <button
+              type="button"
+              onClick={() => router.push(`/manga/${mangaId}/chapters`)}
+              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Hủy
+            </button>
             <button
               type="submit"
-              disabled={updateChapter.isPending}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+              disabled={updateChapter.isPending || isUploading}
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {updateChapter.isPending ? 'Updating...' : 'Update Chapter'}
+              {updateChapter.isPending ? 'Đang cập nhật...' : 'Cập nhật'}
             </button>
           </div>
         </form>

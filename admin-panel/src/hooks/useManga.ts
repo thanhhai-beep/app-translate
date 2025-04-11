@@ -1,22 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '../lib/api-client';
+import { apiClient } from '@/lib/api-client';
 import { message } from 'antd';
-
-interface Manga {
-  id: string;
-  title: string;
-  originalTitle: string;
-  description: string;
-  author: string;
-  status: string;
-  coverImage: string;
-  createdAt: string;
-}
-
-interface MangaResponse {
-  data: Manga[];
-  total: number;
-}
+import { Manga, MangaResponse } from '@/types/manga';
 
 export const useManga = (id: string) => {
   return useQuery<Manga>({
@@ -29,13 +14,11 @@ export const useManga = (id: string) => {
   });
 };
 
-export const useMangas = (page: number = 1, limit: number = 10) => {
+export const useMangas = (page: number, pageSize: number) => {
   return useQuery<MangaResponse>({
-    queryKey: ['mangas', page, limit],
+    queryKey: ['mangas', page, pageSize],
     queryFn: async (): Promise<MangaResponse> => {
-      const { data } = await apiClient.get<MangaResponse>('/manga', {
-        params: { page, limit },
-      });
+      const { data } = await apiClient.get<MangaResponse>(`/manga?page=${page}&pageSize=${pageSize}`);
       return data;
     },
   });
@@ -45,9 +28,9 @@ export const useCreateManga = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (data: Partial<Manga>) => {
-      const response = await apiClient.post('/manga', data);
-      return response.data;
+    mutationFn: async (manga: Partial<Manga>) => {
+      const { data } = await apiClient.post<Manga>('/manga', manga);
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mangas'] });
@@ -62,9 +45,9 @@ export const useUpdateManga = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<Manga> }) => {
-      const response = await apiClient.patch(`/manga/${id}`, data);
-      return response.data;
+    mutationFn: async ({ id, manga }: { id: string; manga: Partial<Manga> }) => {
+      const { data } = await apiClient.patch<Manga>(`/manga/${id}`, manga);
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mangas'] });
@@ -81,8 +64,8 @@ export const useDeleteManga = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiClient.delete(`/manga/${id}`);
-      return response.data;
+      const { data } = await apiClient.delete<Manga>(`/manga/${id}`);
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mangas'] });

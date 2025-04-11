@@ -13,6 +13,10 @@ import { CredentialsModule } from './credentials/credentials.module';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ChaptersModule } from './chapters/chapters.module';
+import { CategoriesModule } from './categories/categories.module';
+import { SettingsModule } from './settings/settings.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -44,6 +48,10 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
+    ChaptersModule,
+    CategoriesModule,
+    SettingsModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],

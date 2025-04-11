@@ -12,13 +12,15 @@ const typeorm_1 = require("@nestjs/typeorm");
 const manga_controller_1 = require("./manga.controller");
 const manga_service_1 = require("./manga.service");
 const manga_entity_1 = require("./entities/manga.entity");
+const category_entity_1 = require("../categories/category.entity");
 const chapters_module_1 = require("../chapters/chapters.module");
+const categories_module_1 = require("../categories/categories.module");
 let MangaModule = class MangaModule {
 };
 exports.MangaModule = MangaModule;
 exports.MangaModule = MangaModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([manga_entity_1.Manga]), chapters_module_1.ChaptersModule],
+        imports: [typeorm_1.TypeOrmModule.forFeature([manga_entity_1.Manga, category_entity_1.Category]), chapters_module_1.ChaptersModule, categories_module_1.CategoriesModule],
         controllers: [manga_controller_1.MangaController],
         providers: [manga_service_1.MangaService],
         exports: [manga_service_1.MangaService],

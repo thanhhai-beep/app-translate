@@ -14,25 +14,17 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChaptersController = void 0;
 const common_1 = require("@nestjs/common");
-const platform_express_1 = require("@nestjs/platform-express");
 const create_chapter_dto_1 = require("./dto/create-chapter.dto");
 const update_chapter_dto_1 = require("./dto/update-chapter.dto");
-const multer_1 = require("multer");
-const path_1 = require("path");
 const chapters_service_1 = require("./chapters.service");
 let ChaptersController = class ChaptersController {
     chaptersService;
     constructor(chaptersService) {
         this.chaptersService = chaptersService;
     }
-    create(mangaId, createChapterDto, file) {
+    create(mangaId, createChapterDto) {
         try {
-            console.log('Creating chapter with data:', { mangaId, createChapterDto, file });
-            return this.chaptersService.create(mangaId, {
-                ...createChapterDto,
-                content: file ? `/uploads/chapters/${file.filename}` : createChapterDto.content,
-                contentType: file ? 'image' : 'text',
-            });
+            return this.chaptersService.create(createChapterDto);
         }
         catch (error) {
             console.error('Error creating chapter:', error);
@@ -41,7 +33,6 @@ let ChaptersController = class ChaptersController {
     }
     findAll(mangaId, page = 1, pageSize = 10) {
         try {
-            console.log('Finding chapters with params:', { mangaId, page, pageSize });
             return this.chaptersService.findAll(mangaId, page, pageSize);
         }
         catch (error) {
@@ -51,7 +42,6 @@ let ChaptersController = class ChaptersController {
     }
     findOne(mangaId, id) {
         try {
-            console.log('Finding chapter with params:', { mangaId, id });
             return this.chaptersService.findOne(mangaId, id);
         }
         catch (error) {
@@ -59,14 +49,9 @@ let ChaptersController = class ChaptersController {
             throw new common_1.BadRequestException(error.message);
         }
     }
-    update(mangaId, id, updateChapterDto, file) {
+    update(mangaId, id, updateChapterDto) {
         try {
-            console.log('Updating chapter with data:', { mangaId, id, updateChapterDto, file });
-            return this.chaptersService.update(mangaId, id, {
-                ...updateChapterDto,
-                content: file ? file.path : updateChapterDto.content,
-                contentType: file ? 'image' : 'text',
-            });
+            return this.chaptersService.update(mangaId, id, updateChapterDto);
         }
         catch (error) {
             console.error('Error updating chapter:', error);
@@ -75,7 +60,6 @@ let ChaptersController = class ChaptersController {
     }
     remove(mangaId, id) {
         try {
-            console.log('Deleting chapter with params:', { mangaId, id });
             return this.chaptersService.remove(mangaId, id);
         }
         catch (error) {
@@ -87,26 +71,10 @@ let ChaptersController = class ChaptersController {
 exports.ChaptersController = ChaptersController;
 __decorate([
     (0, common_1.Post)(),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('content', {
-        storage: (0, multer_1.diskStorage)({
-            destination: './uploads/chapters',
-            filename: (req, file, cb) => {
-                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-                cb(null, `${uniqueSuffix}${(0, path_1.extname)(file.originalname)}`);
-            },
-        }),
-    })),
     __param(0, (0, common_1.Param)('mangaId')),
     __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.UploadedFile)(new common_1.ParseFilePipe({
-        validators: [
-            new common_1.MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
-            new common_1.FileTypeValidator({ fileType: /(jpg|jpeg|png|gif)$/ }),
-        ],
-        fileIsRequired: false,
-    }))),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, create_chapter_dto_1.CreateChapterDto, Object]),
+    __metadata("design:paramtypes", [String, create_chapter_dto_1.CreateChapterDto]),
     __metadata("design:returntype", void 0)
 ], ChaptersController.prototype, "create", null);
 __decorate([
@@ -128,27 +96,11 @@ __decorate([
 ], ChaptersController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('content', {
-        storage: (0, multer_1.diskStorage)({
-            destination: './uploads/chapters',
-            filename: (req, file, cb) => {
-                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-                cb(null, `${uniqueSuffix}${(0, path_1.extname)(file.originalname)}`);
-            },
-        }),
-    })),
     __param(0, (0, common_1.Param)('mangaId')),
     __param(1, (0, common_1.Param)('id')),
     __param(2, (0, common_1.Body)()),
-    __param(3, (0, common_1.UploadedFile)(new common_1.ParseFilePipe({
-        validators: [
-            new common_1.MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
-            new common_1.FileTypeValidator({ fileType: /(jpg|jpeg|png|gif)$/ }),
-        ],
-        fileIsRequired: false,
-    }))),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, update_chapter_dto_1.UpdateChapterDto, Object]),
+    __metadata("design:paramtypes", [String, String, update_chapter_dto_1.UpdateChapterDto]),
     __metadata("design:returntype", void 0)
 ], ChaptersController.prototype, "update", null);
 __decorate([

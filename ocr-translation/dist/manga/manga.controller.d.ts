@@ -6,7 +6,7 @@ export declare class MangaController {
     constructor(mangaService: MangaService);
     create(createMangaDto: CreateMangaDto): Promise<import("./entities").Manga>;
     findAll(page?: number, limit?: number): Promise<{
-        data: import("./entities").Manga[];
+        mangas: import("./entities").Manga[];
         total: number;
     }>;
     findOne(id: string): Promise<import("./entities").Manga>;

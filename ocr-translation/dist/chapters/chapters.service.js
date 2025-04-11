@@ -25,16 +25,15 @@ let ChaptersService = class ChaptersService {
         this.chapterRepository = chapterRepository;
         this.mangaRepository = mangaRepository;
     }
-    async create(mangaId, createChapterDto) {
-        const manga = await this.mangaRepository.findOne({ where: { id: mangaId } });
+    async create(createChapterDto) {
+        const manga = await this.mangaRepository.findOne({ where: { id: createChapterDto.mangaId } });
         if (!manga) {
-            throw new common_1.BadRequestException(`Manga with ID ${mangaId} not found`);
+            throw new common_1.NotFoundException('Manga not found');
         }
-        const chapter = this.chapterRepository.create({
-            ...createChapterDto,
-            mangaId,
-        });
-        return await this.chapterRepository.save(chapter);
+        const chapter = new chapter_entity_1.Chapter();
+        Object.assign(chapter, createChapterDto);
+        chapter.manga = manga;
+        return this.chapterRepository.save(chapter);
     }
     async findAll(mangaId, page = 1, pageSize = 10) {
         const manga = await this.mangaRepository.findOne({ where: { id: mangaId } });

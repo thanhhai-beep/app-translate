@@ -1,4 +1,5 @@
 import { Chapter } from '../../chapters/entities/chapter.entity';
+import { Category } from '../../categories/category.entity';
 export declare enum MangaStatus {
     ONGOING = "ONGOING",
     COMPLETED = "COMPLETED",
@@ -6,10 +7,8 @@ export declare enum MangaStatus {
     DROPPED = "DROPPED"
 }
 export declare enum MangaType {
-    MANGA = "MANGA",
-    MANHWA = "MANHWA",
-    MANHUA = "MANHUA",
-    NOVEL = "NOVEL"
+    COMIC = "comic",
+    TEXT = "text"
 }
 export declare class Manga {
     id: string;
@@ -24,6 +23,7 @@ export declare class Manga {
     coverImage: string;
     sourceLanguage: string;
     targetLanguages: string;
+    categories: Category[];
     chapters: Chapter[];
     metadata: any;
     translation: {
@@ -37,4 +37,5 @@ export declare class Manga {
     favoriteCount: number;
     createdAt: Date;
     updatedAt: Date;
+    type: MangaType;
 }

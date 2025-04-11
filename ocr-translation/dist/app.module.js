@@ -22,6 +22,10 @@ const credentials_module_1 = require("./credentials/credentials.module");
 const jwt_strategy_1 = require("./auth/jwt.strategy");
 const serve_static_1 = require("@nestjs/serve-static");
 const path_1 = require("path");
+const chapters_module_1 = require("./chapters/chapters.module");
+const categories_module_1 = require("./categories/categories.module");
+const settings_module_1 = require("./settings/settings.module");
+const upload_module_1 = require("./upload/upload.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -56,6 +60,10 @@ exports.AppModule = AppModule = __decorate([
                 rootPath: (0, path_1.join)(__dirname, '..', 'uploads'),
                 serveRoot: '/uploads',
             }),
+            chapters_module_1.ChaptersModule,
+            categories_module_1.CategoriesModule,
+            settings_module_1.SettingsModule,
+            upload_module_1.UploadModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, jwt_strategy_1.JwtStrategy],

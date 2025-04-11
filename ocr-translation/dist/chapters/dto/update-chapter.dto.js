@@ -11,16 +11,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateChapterDto = void 0;
 const class_validator_1 = require("class-validator");
+const chapter_entity_1 = require("../entities/chapter.entity");
+const chapter_entity_2 = require("../entities/chapter.entity");
 class UpdateChapterDto {
     chapterNumber;
     title;
     content;
+    type;
     contentType;
     status;
+    images;
 }
 exports.UpdateChapterDto = UpdateChapterDto;
 __decorate([
-    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], UpdateChapterDto.prototype, "chapterNumber", void 0);
@@ -35,13 +39,24 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateChapterDto.prototype, "content", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(['text', 'image']),
+    (0, class_validator_1.IsEnum)(chapter_entity_1.ChapterType),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateChapterDto.prototype, "type", void 0);
+__decorate([
+    (0, class_validator_1.IsEnum)(chapter_entity_2.ContentType),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateChapterDto.prototype, "contentType", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(['draft', 'published', 'archived']),
+    (0, class_validator_1.IsEnum)(chapter_entity_1.ChapterStatus),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateChapterDto.prototype, "status", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Array)
+], UpdateChapterDto.prototype, "images", void 0);
 //# sourceMappingURL=update-chapter.dto.js.map

@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Chapter } from '../../chapters/entities/chapter.entity';
+import { Category } from '../../categories/category.entity';
 
 export enum MangaStatus {
   ONGOING = 'ONGOING',
@@ -9,10 +10,8 @@ export enum MangaStatus {
 }
 
 export enum MangaType {
-  MANGA = 'MANGA',
-  MANHWA = 'MANHWA',
-  MANHUA = 'MANHUA',
-  NOVEL = 'NOVEL'
+  COMIC = 'comic',
+  TEXT = 'text'
 }
 
 @Entity('manga')
@@ -23,7 +22,7 @@ export class Manga {
   @Column()
   title: string;
 
-  @Column({ name: 'original_title' })
+  @Column({ nullable: true })
   originalTitle: string;
 
   @Column({ nullable: true })
@@ -53,6 +52,14 @@ export class Manga {
   @Column('text', { name: 'target_languages', nullable: true })
   targetLanguages: string;
 
+  @ManyToMany(() => Category)
+  @JoinTable({
+    name: 'manga_categories',
+    joinColumn: { name: 'manga_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' }
+  })
+  categories: Category[];
+
   @OneToMany(() => Chapter, (chapter) => chapter.manga)
   chapters: Chapter[];
 
@@ -81,4 +88,11 @@ export class Manga {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({
+    type: 'enum',
+    enum: MangaType,
+    default: MangaType.TEXT
+  })
+  type: MangaType;
 } 

@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateMangaDto = void 0;
 const class_validator_1 = require("class-validator");
+const manga_entity_1 = require("../entities/manga.entity");
 class UpdateMangaDto {
     title;
     originalTitle;
@@ -23,6 +24,8 @@ class UpdateMangaDto {
     coverImage;
     sourceLanguage;
     targetLanguages;
+    type;
+    categoryIds;
 }
 exports.UpdateMangaDto = UpdateMangaDto;
 __decorate([
@@ -57,7 +60,7 @@ __decorate([
 ], UpdateMangaDto.prototype, "publisher", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsEnum)(manga_entity_1.MangaStatus),
     __metadata("design:type", String)
 ], UpdateMangaDto.prototype, "status", void 0);
 __decorate([
@@ -68,7 +71,7 @@ __decorate([
 ], UpdateMangaDto.prototype, "genres", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsUrl)(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateMangaDto.prototype, "coverImage", void 0);
 __decorate([
@@ -82,4 +85,15 @@ __decorate([
     (0, class_validator_1.IsString)({ each: true }),
     __metadata("design:type", Array)
 ], UpdateMangaDto.prototype, "targetLanguages", void 0);
+__decorate([
+    (0, class_validator_1.IsEnum)(manga_entity_1.MangaType),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateMangaDto.prototype, "type", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsUUID)('4', { each: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Array)
+], UpdateMangaDto.prototype, "categoryIds", void 0);
 //# sourceMappingURL=update-manga.dto.js.map

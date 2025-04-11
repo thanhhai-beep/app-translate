@@ -1,4 +1,5 @@
-import { IsString, IsOptional, IsArray, IsUrl } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsUrl, IsUUID, IsEnum } from 'class-validator';
+import { MangaType, MangaStatus } from '../entities/manga.entity';
 
 export class UpdateMangaDto {
   @IsOptional()
@@ -26,8 +27,8 @@ export class UpdateMangaDto {
   publisher?: string;
 
   @IsOptional()
-  @IsString()
-  status?: string;
+  @IsEnum(MangaStatus)
+  status?: MangaStatus;
 
   @IsOptional()
   @IsArray()
@@ -35,7 +36,7 @@ export class UpdateMangaDto {
   genres?: string[];
 
   @IsOptional()
-  @IsUrl()
+  @IsString()
   coverImage?: string;
 
   @IsOptional()
@@ -46,4 +47,13 @@ export class UpdateMangaDto {
   @IsArray()
   @IsString({ each: true })
   targetLanguages?: string[];
+
+  @IsEnum(MangaType)
+  @IsOptional()
+  type?: MangaType;
+
+  @IsArray()
+  @IsUUID('4', { each: true })
+  @IsOptional()
+  categoryIds?: string[];
 } 

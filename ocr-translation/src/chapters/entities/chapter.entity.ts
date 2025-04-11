@@ -1,10 +1,20 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Manga } from '../../manga/entities/manga.entity';
+
+export enum ChapterType {
+  TEXT = 'text',
+  IMAGE = 'image',
+}
 
 export enum ChapterStatus {
   DRAFT = 'draft',
   PUBLISHED = 'published',
-  ARCHIVED = 'archived'
+  HIDDEN = 'hidden'
+}
+
+export enum ContentType {
+  TEXT = 'text',
+  IMAGE = 'image'
 }
 
 @Entity()
@@ -13,34 +23,48 @@ export class Chapter {
   id: string;
 
   @Column()
-  mangaId: string;
-
-  @Column()
   chapterNumber: number;
 
   @Column()
   title: string;
 
-  @Column('text')
+  @Column({ type: 'text', nullable: true })
   content: string;
 
-  @Column({ type: 'enum', enum: ['text', 'image'], default: 'text' })
-  contentType: 'text' | 'image';
+  @Column({
+    type: 'enum',
+    enum: ChapterType,
+    default: ChapterType.TEXT,
+  })
+  type: ChapterType;
 
   @Column({
     type: 'enum',
     enum: ChapterStatus,
-    default: ChapterStatus.DRAFT
+    default: ChapterStatus.DRAFT,
   })
   status: ChapterStatus;
+
+  @Column('simple-array', { nullable: true })
+  images: string[];
+
+  @Column({
+    type: 'enum',
+    enum: ContentType,
+    default: ContentType.TEXT
+  })
+  contentType: ContentType;
+
+  @ManyToOne(() => Manga, (manga) => manga.chapters)
+  @JoinColumn({ name: 'mangaId' })
+  manga: Manga;
+
+  @Column()
+  mangaId: string;
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @ManyToOne(() => Manga, manga => manga.chapters)
-  @JoinColumn({ name: 'mangaId' })
-  manga: Manga;
 } 

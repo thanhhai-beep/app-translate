@@ -1,7 +1,7 @@
 export const checkAuth = async (): Promise<boolean> => {
   try {
     // const token = getTokenFromCookie();
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ0Mjk1NTQxLCJleHAiOjE3NDQzODE5NDF9.BR_XoLJhUAKWvHs9NLNPa1qMEEMBJXuu6XKCK2ms4-U";
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ0MzU0NDgxLCJleHAiOjE3NDQ0NDA4ODF9.EV0MaoyXGjxmda4230BlkyvpB-aYxyiyskfhM68Hfa8";
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/check`, {
       method: 'GET',
       headers: {

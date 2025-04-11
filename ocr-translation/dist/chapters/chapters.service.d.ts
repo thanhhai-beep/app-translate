@@ -7,7 +7,7 @@ export declare class ChaptersService {
     private readonly chapterRepository;
     private readonly mangaRepository;
     constructor(chapterRepository: Repository<Chapter>, mangaRepository: Repository<Manga>);
-    create(mangaId: string, createChapterDto: CreateChapterDto): Promise<Chapter>;
+    create(createChapterDto: CreateChapterDto): Promise<Chapter>;
     findAll(mangaId: string, page?: number, pageSize?: number): Promise<{
         data: Chapter[];
         total: number;

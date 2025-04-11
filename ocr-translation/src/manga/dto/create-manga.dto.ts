@@ -1,65 +1,54 @@
-import { Type } from 'class-transformer';
-import { IsString, IsOptional, IsArray, IsUrl, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsUUID, IsEnum } from 'class-validator';
+import { MangaType } from '../entities/manga.entity';
 
 export class CreateMangaDto {
   @IsString()
   title: string;
 
   @IsString()
-  originalTitle: string;
-
   @IsOptional()
+  originalTitle?: string;
+
   @IsString()
+  @IsOptional()
   description?: string;
 
-  @IsOptional()
   @IsString()
+  @IsOptional()
   author?: string;
 
-  @IsOptional()
   @IsString()
+  @IsOptional()
   artist?: string;
 
-  @IsOptional()
   @IsString()
+  @IsOptional()
   publisher?: string;
 
-  @IsOptional()
   @IsString()
+  @IsOptional()
   status?: string;
 
+  @IsString()
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  genres?: string[];
-
-  @IsOptional()
-  @IsUrl()
   coverImage?: string;
 
-  @IsOptional()
   @IsString()
-  sourceLanguage?: string;
-
   @IsOptional()
+  genres?: string;
+
+  @IsString()
+  @IsOptional()
+  tags?: string;
+
+  @IsEnum(MangaType)
+  @IsOptional()
+  type?: MangaType;
+
   @IsArray()
-  @IsString({ each: true })
-  targetLanguages?: string[];
-
+  @IsUUID('4', { each: true })
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  tags?: string[];
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  viewCount?: number;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  favoriteCount?: number;
+  categoryIds?: string[];
 }
 
 export class UpdateMangaDto extends CreateMangaDto {} 

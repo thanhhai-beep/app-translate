@@ -17,54 +17,68 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const manga_entity_1 = require("./entities/manga.entity");
+const category_entity_1 = require("../categories/category.entity");
 let MangaService = class MangaService {
     mangaRepository;
-    constructor(mangaRepository) {
+    categoryRepository;
+    constructor(mangaRepository, categoryRepository) {
         this.mangaRepository = mangaRepository;
+        this.categoryRepository = categoryRepository;
     }
     async create(createMangaDto) {
-        const mangaData = {
+        const manga = this.mangaRepository.create({
             ...createMangaDto,
-            genres: createMangaDto.genres?.join(','),
-            targetLanguages: createMangaDto.targetLanguages?.join(','),
-            tags: createMangaDto.tags?.join(',')
-        };
-        const manga = this.mangaRepository.create(mangaData);
+            originalTitle: createMangaDto.originalTitle || createMangaDto.title
+        });
+        if (createMangaDto.categoryIds && createMangaDto.categoryIds.length > 0) {
+            const categories = await this.categoryRepository.findByIds(createMangaDto.categoryIds);
+            manga.categories = categories;
+        }
         return this.mangaRepository.save(manga);
     }
     async findAll(page = 1, limit = 10) {
-        const [data, total] = await this.mangaRepository.findAndCount({
+        const [mangas, total] = await this.mangaRepository.findAndCount({
             skip: (page - 1) * limit,
             take: limit,
+            relations: ['categories'],
             order: {
                 createdAt: 'DESC',
             },
         });
-        return { data, total };
+        return { mangas, total };
     }
     async findOne(id) {
-        const manga = await this.mangaRepository.findOne({ where: { id } });
+        const manga = await this.mangaRepository.findOne({
+            where: { id },
+            relations: ['categories'],
+        });
         if (!manga) {
             throw new common_1.NotFoundException(`Manga with ID ${id} not found`);
         }
         return manga;
     }
     async update(id, updateMangaDto) {
-        const manga = await this.findOne(id);
+        const manga = await this.mangaRepository.findOne({ where: { id }, relations: ['categories'] });
+        if (!manga) {
+            throw new common_1.NotFoundException('Manga not found');
+        }
         Object.assign(manga, updateMangaDto);
+        if (updateMangaDto.categoryIds) {
+            const categories = await this.categoryRepository.findByIds(updateMangaDto.categoryIds);
+            manga.categories = categories;
+        }
         return this.mangaRepository.save(manga);
     }
     async remove(id) {
-        const result = await this.mangaRepository.delete(id);
-        if (result.affected === 0) {
-            throw new common_1.NotFoundException(`Manga with ID ${id} not found`);
-        }
+        await this.mangaRepository.delete(id);
     }
 };
 exports.MangaService = MangaService;
 exports.MangaService = MangaService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(manga_entity_1.Manga)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(category_entity_1.Category)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository])
 ], MangaService);
 //# sourceMappingURL=manga.service.js.map

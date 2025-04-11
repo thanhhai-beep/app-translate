@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Manga = exports.MangaType = exports.MangaStatus = void 0;
 const typeorm_1 = require("typeorm");
 const chapter_entity_1 = require("../../chapters/entities/chapter.entity");
+const category_entity_1 = require("../../categories/category.entity");
 var MangaStatus;
 (function (MangaStatus) {
     MangaStatus["ONGOING"] = "ONGOING";
@@ -21,10 +22,8 @@ var MangaStatus;
 })(MangaStatus || (exports.MangaStatus = MangaStatus = {}));
 var MangaType;
 (function (MangaType) {
-    MangaType["MANGA"] = "MANGA";
-    MangaType["MANHWA"] = "MANHWA";
-    MangaType["MANHUA"] = "MANHUA";
-    MangaType["NOVEL"] = "NOVEL";
+    MangaType["COMIC"] = "comic";
+    MangaType["TEXT"] = "text";
 })(MangaType || (exports.MangaType = MangaType = {}));
 let Manga = class Manga {
     id;
@@ -39,6 +38,7 @@ let Manga = class Manga {
     coverImage;
     sourceLanguage;
     targetLanguages;
+    categories;
     chapters;
     metadata;
     translation;
@@ -47,6 +47,7 @@ let Manga = class Manga {
     favoriteCount;
     createdAt;
     updatedAt;
+    type;
 };
 exports.Manga = Manga;
 __decorate([
@@ -58,7 +59,7 @@ __decorate([
     __metadata("design:type", String)
 ], Manga.prototype, "title", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'original_title' }),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Manga.prototype, "originalTitle", void 0);
 __decorate([
@@ -98,6 +99,15 @@ __decorate([
     __metadata("design:type", String)
 ], Manga.prototype, "targetLanguages", void 0);
 __decorate([
+    (0, typeorm_1.ManyToMany)(() => category_entity_1.Category),
+    (0, typeorm_1.JoinTable)({
+        name: 'manga_categories',
+        joinColumn: { name: 'manga_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' }
+    }),
+    __metadata("design:type", Array)
+], Manga.prototype, "categories", void 0);
+__decorate([
     (0, typeorm_1.OneToMany)(() => chapter_entity_1.Chapter, (chapter) => chapter.manga),
     __metadata("design:type", Array)
 ], Manga.prototype, "chapters", void 0);
@@ -129,6 +139,14 @@ __decorate([
     (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
 ], Manga.prototype, "updatedAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: MangaType,
+        default: MangaType.TEXT
+    }),
+    __metadata("design:type", String)
+], Manga.prototype, "type", void 0);
 exports.Manga = Manga = __decorate([
     (0, typeorm_1.Entity)('manga')
 ], Manga);

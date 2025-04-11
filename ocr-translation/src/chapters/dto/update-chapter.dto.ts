@@ -1,7 +1,9 @@
-import { IsString, IsNumber, IsEnum, IsOptional } from 'class-validator';
+import { IsNumber, IsString, IsOptional, IsEnum, IsArray, IsNotEmpty } from 'class-validator';
+import { ChapterType, ChapterStatus } from '../entities/chapter.entity';
+import { ContentType } from '../entities/chapter.entity';
 
 export class UpdateChapterDto {
-  @IsNumber()
+  @IsNotEmpty()
   @IsOptional()
   chapterNumber?: number;
 
@@ -13,11 +15,20 @@ export class UpdateChapterDto {
   @IsOptional()
   content?: string;
 
-  @IsEnum(['text', 'image'])
+  @IsEnum(ChapterType)
   @IsOptional()
-  contentType?: 'text' | 'image';
+  type?: ChapterType;
 
-  @IsEnum(['draft', 'published', 'archived'])
+  @IsEnum(ContentType)
   @IsOptional()
-  status?: 'draft' | 'published' | 'archived';
+  contentType?: ContentType;
+
+  @IsEnum(ChapterStatus)
+  @IsOptional()
+  status?: ChapterStatus;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  images?: string[];
 } 

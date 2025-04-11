@@ -12,22 +12,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateChapterDto = void 0;
 const class_validator_1 = require("class-validator");
 const chapter_entity_1 = require("../entities/chapter.entity");
-const class_transformer_1 = require("class-transformer");
 class CreateChapterDto {
+    mangaId;
     chapterNumber;
     title;
     content;
-    status;
     contentType;
+    status;
 }
 exports.CreateChapterDto = CreateChapterDto;
 __decorate([
-    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateChapterDto.prototype, "mangaId", void 0);
+__decorate([
     (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Number)
 ], CreateChapterDto.prototype, "chapterNumber", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateChapterDto.prototype, "title", void 0);
 __decorate([
@@ -36,13 +42,13 @@ __decorate([
     __metadata("design:type", String)
 ], CreateChapterDto.prototype, "content", void 0);
 __decorate([
+    (0, class_validator_1.IsEnum)(chapter_entity_1.ContentType),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateChapterDto.prototype, "contentType", void 0);
+__decorate([
     (0, class_validator_1.IsEnum)(chapter_entity_1.ChapterStatus),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateChapterDto.prototype, "status", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], CreateChapterDto.prototype, "contentType", void 0);
 //# sourceMappingURL=create-chapter.dto.js.map
