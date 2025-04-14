@@ -84,3 +84,21 @@ VALUES (
     '["ADMIN"]',
     TRUE
 ); 
+
+-- Bảng chính: categories
+CREATE TABLE IF NOT EXISTS categories (
+  id CHAR(36) PRIMARY KEY, -- UUID dạng string (CHAR(36))
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Bảng trung gian: manga_categories
+CREATE TABLE IF NOT EXISTS manga_categories (
+  category_id CHAR(36) NOT NULL,
+  manga_id CHAR(36) NOT NULL,
+  PRIMARY KEY (category_id, manga_id),
+  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+  FOREIGN KEY (manga_id) REFERENCES manga(id) ON DELETE CASCADE
+);

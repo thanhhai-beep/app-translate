@@ -52,12 +52,7 @@ export class Manga {
   @Column('text', { name: 'target_languages', nullable: true })
   targetLanguages: string;
 
-  @ManyToMany(() => Category)
-  @JoinTable({
-    name: 'manga_categories',
-    joinColumn: { name: 'manga_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' }
-  })
+  @ManyToMany(() => Category, category => category.mangas)
   categories: Category[];
 
   @OneToMany(() => Chapter, (chapter) => chapter.manga)
