@@ -2,6 +2,12 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { Chapter } from '../chapters/chapter.entity';
 import { Category } from '../categories/category.entity';
 
+export enum MangaType {
+  COMIC = 'comic',
+  TEXT = 'text',
+  IMPORT = "import"
+}
+
 @Entity('manga')
 export class Manga {
   @PrimaryGeneratedColumn('uuid')
@@ -24,6 +30,16 @@ export class Manga {
 
   @Column({ nullable: true })
   coverImage: string;
+
+  @Column({ nullable: true })
+  sourceUrl: string;
+
+  @Column({
+    type: 'enum',
+    enum: MangaType,
+    default: MangaType.TEXT
+  })
+  type: MangaType;
 
   @ManyToMany(() => Category, category => category.mangas)
   categories: Category[];

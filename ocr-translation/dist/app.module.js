@@ -19,6 +19,8 @@ const translation_module_1 = require("./translation/translation.module");
 const serve_static_1 = require("@nestjs/serve-static");
 const path_1 = require("path");
 const audio_module_1 = require("./audio/audio.module");
+const auth_module_1 = require("./auth/auth.module");
+const sources_module_1 = require("./sources/sources.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -52,7 +54,9 @@ exports.AppModule = AppModule = __decorate([
             categories_module_1.CategoriesModule,
             upload_module_1.UploadModule,
             translation_module_1.TranslationModule,
-            audio_module_1.AudioModule
+            auth_module_1.AuthModule,
+            audio_module_1.AudioModule,
+            sources_module_1.SourcesModule
         ],
     })
 ], AppModule);

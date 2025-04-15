@@ -26,20 +26,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  // useEffect(() => {
+  //   checkAuth();
+  // }, []);
 
-  const checkAuth = async () => {
-    try {
-      const response = await apiClient.get<User>('/auth/me');
-      setUser(response.data);
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const checkAuth = async () => {
+  //   try {
+  //     const response = await apiClient.get<User>('/auth/me');
+  //     setUser(response.data);
+  //   } catch (error) {
+  //     setUser(null);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const login = async (email: string, password: string) => {
     const response = await apiClient.post<LoginResponse>('/auth/login', { email, password });

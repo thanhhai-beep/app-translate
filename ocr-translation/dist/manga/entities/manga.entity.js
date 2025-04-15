@@ -24,6 +24,7 @@ var MangaType;
 (function (MangaType) {
     MangaType["COMIC"] = "comic";
     MangaType["TEXT"] = "text";
+    MangaType["IMPORT"] = "import";
 })(MangaType || (exports.MangaType = MangaType = {}));
 let Manga = class Manga {
     id;
@@ -45,6 +46,7 @@ let Manga = class Manga {
     tags;
     viewCount;
     favoriteCount;
+    sourceUrl;
     createdAt;
     updatedAt;
     type;
@@ -131,6 +133,10 @@ __decorate([
     (0, typeorm_1.Column)({ default: 0 }),
     __metadata("design:type", Number)
 ], Manga.prototype, "favoriteCount", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], Manga.prototype, "sourceUrl", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

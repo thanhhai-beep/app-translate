@@ -10,6 +10,8 @@ import { TranslationModule } from './translation/translation.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AudioModule } from './audio/audio.module';
+import { AuthModule } from './auth/auth.module';
+import { SourcesModule } from './sources/sources.module';
 
 @Module({
   imports: [
@@ -40,7 +42,9 @@ import { AudioModule } from './audio/audio.module';
     CategoriesModule,
     UploadModule,
     TranslationModule,
-    AudioModule
+    AuthModule,
+    AudioModule,
+    SourcesModule
   ],
 })
 export class AppModule {}

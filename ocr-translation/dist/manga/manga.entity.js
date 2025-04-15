@@ -9,10 +9,16 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Manga = void 0;
+exports.Manga = exports.MangaType = void 0;
 const typeorm_1 = require("typeorm");
 const chapter_entity_1 = require("../chapters/chapter.entity");
 const category_entity_1 = require("../categories/category.entity");
+var MangaType;
+(function (MangaType) {
+    MangaType["COMIC"] = "comic";
+    MangaType["TEXT"] = "text";
+    MangaType["IMPORT"] = "import";
+})(MangaType || (exports.MangaType = MangaType = {}));
 let Manga = class Manga {
     id;
     title;
@@ -21,6 +27,8 @@ let Manga = class Manga {
     author;
     status;
     coverImage;
+    sourceUrl;
+    type;
     categories;
     chapters;
     createdAt;
@@ -55,6 +63,18 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Manga.prototype, "coverImage", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], Manga.prototype, "sourceUrl", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: MangaType,
+        default: MangaType.TEXT
+    }),
+    __metadata("design:type", String)
+], Manga.prototype, "type", void 0);
 __decorate([
     (0, typeorm_1.ManyToMany)(() => category_entity_1.Category, category => category.mangas),
     __metadata("design:type", Array)

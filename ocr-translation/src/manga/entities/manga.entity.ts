@@ -11,7 +11,8 @@ export enum MangaStatus {
 
 export enum MangaType {
   COMIC = 'comic',
-  TEXT = 'text'
+  TEXT = 'text',
+  IMPORT = "import"
 }
 
 @Entity('manga')
@@ -82,6 +83,9 @@ export class Manga {
 
   @Column({ default: 0 })
   favoriteCount: number;
+  
+  @Column({ nullable: true })
+  sourceUrl: string;
 
   @CreateDateColumn()
   createdAt: Date;

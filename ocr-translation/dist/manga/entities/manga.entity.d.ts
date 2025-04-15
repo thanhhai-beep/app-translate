@@ -8,7 +8,8 @@ export declare enum MangaStatus {
 }
 export declare enum MangaType {
     COMIC = "comic",
-    TEXT = "text"
+    TEXT = "text",
+    IMPORT = "import"
 }
 export declare class Manga {
     id: string;
@@ -35,6 +36,7 @@ export declare class Manga {
     tags: string;
     viewCount: number;
     favoriteCount: number;
+    sourceUrl: string;
     createdAt: Date;
     updatedAt: Date;
     type: MangaType;

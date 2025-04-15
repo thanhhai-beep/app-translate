@@ -1,6 +1,7 @@
 export enum MangaType {
   COMIC = 'comic',
-  TEXT = 'text'
+  TEXT = 'text',
+  IMPORT = 'import'
 }
 
 export enum MangaStatus {
@@ -11,21 +12,43 @@ export enum MangaStatus {
 }
 
 export interface Manga {
-  id: string;
+  id?: string;
   title: string;
   originalTitle: string;
-  description: string;
+  description?: string;
   author: string;
   categories?: string[];
   type: MangaType;
-  coverImage: string;
-  status: MangaStatus;
-  createdAt: string;
-  updatedAt: string;
+  coverImage?: string;
+  status?: string;
+  url: string;
+  sourceType: string;
+  sourceUrl?: string;
+  chapters?: Chapter[];
+  createdAt?: Date;
+  updatedAt?: Date;
   categoryIds?: string[];
+}
+
+export interface Chapter {
+  id?: string;
+  title: string;
+  number: number;
+  url: string;
+  mangaId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface MangaResponse {
   mangas: Manga[];
   total: number;
+}
+
+export interface MangaInfo {
+  title: string;
+  url: string;
+  sourceType: string;
+  type: 'import';
+  sourceUrl: string;
 } 
