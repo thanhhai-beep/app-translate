@@ -36,10 +36,16 @@ export class AppService {
   }
 
   async getMangaDetail(id: string) {
-    const manga = await this.mangaRepository.findOne({
-      where: { id, status: 'PUBLISHED' },
-      relations: ['categories'],
-    });
+    const query = this.mangaRepository
+      .createQueryBuilder('manga')
+      .leftJoinAndSelect('manga.categories', 'category')
+      .where('manga.id = :id', { id })
+      .andWhere('manga.status = :status', { status: 'PUBLISHED' });
+
+    const sql = query.getQueryAndParameters();
+    console.log('Manga Detail Query:', sql);
+
+    const manga = await query.getOne();
 
     if (!manga) {
       throw new NotFoundException('Manga not found');
@@ -50,20 +56,34 @@ export class AppService {
 
   async getChapterList(mangaId: string, page: number = 1, pageSize: number = 10) {
     const skip = (page - 1) * pageSize;
-    const [data, total] = await this.chapterRepository.findAndCount({
-      where: { mangaId, status: ChapterStatus.PUBLISHED },
-      order: { chapterNumber: 'ASC' },
-      skip,
-      take: pageSize,
-    });
+    const query = this.chapterRepository
+      .createQueryBuilder('chapter')
+      .where('chapter.mangaId = :mangaId', { mangaId })
+      .andWhere('chapter.status = :status', { status: ChapterStatus.PUBLISHED })
+      .orderBy('chapter.chapterNumber', 'ASC');
+
+    const sql = query.getQueryAndParameters();
+    console.log('Chapter List Query:', sql);
+
+    const [data, total] = await query
+      .skip(skip)
+      .take(pageSize)
+      .getManyAndCount();
 
     return { data, total };
   }
 
   async getChapterDetail(mangaId: string, chapterId: string) {
-    const chapter = await this.chapterRepository.findOne({
-      where: { id: chapterId, mangaId, status: ChapterStatus.PUBLISHED },
-    });
+    const query = this.chapterRepository
+      .createQueryBuilder('chapter')
+      .where('chapter.id = :chapterId', { chapterId })
+      .andWhere('chapter.mangaId = :mangaId', { mangaId })
+      .andWhere('chapter.status = :status', { status: ChapterStatus.PUBLISHED });
+
+    const sql = query.getQueryAndParameters();
+    console.log('Chapter Detail Query:', sql);
+
+    const chapter = await query.getOne();
 
     if (!chapter) {
       throw new NotFoundException('Chapter not found');
@@ -73,6 +93,9 @@ export class AppService {
   }
 
   async getCategories() {
-    return this.categoryRepository.find();
+    const query = this.categoryRepository.createQueryBuilder('category');
+    const sql = query.getQueryAndParameters();
+    console.log('Categories Query:', sql);
+    return query.getMany();
   }
 } 

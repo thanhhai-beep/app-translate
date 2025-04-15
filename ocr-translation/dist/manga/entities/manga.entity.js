@@ -102,8 +102,8 @@ __decorate([
     (0, typeorm_1.ManyToMany)(() => category_entity_1.Category),
     (0, typeorm_1.JoinTable)({
         name: 'manga_categories',
-        joinColumn: { name: 'manga_id', referencedColumnName: 'id' },
-        inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' }
+        joinColumn: { name: 'manga_id' },
+        inverseJoinColumn: { name: 'category_id' }
     }),
     __metadata("design:type", Array)
 ], Manga.prototype, "categories", void 0);

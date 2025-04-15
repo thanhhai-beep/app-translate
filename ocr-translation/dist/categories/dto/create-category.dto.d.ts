@@ -1,4 +1,4 @@
 export declare class CreateCategoryDto {
-    name: string;
+    name?: string;
     description?: string;
 }

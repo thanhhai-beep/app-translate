@@ -6,6 +6,10 @@ import { MangaModule } from './manga/manga.module';
 import { ChaptersModule } from './chapters/chapters.module';
 import { CategoriesModule } from './categories/categories.module';
 import { UploadModule } from './upload/upload.module';
+import { TranslationModule } from './translation/translation.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { AudioModule } from './audio/audio.module';
 
 @Module({
   imports: [
@@ -15,7 +19,7 @@ import { UploadModule } from './upload/upload.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
+        type: 'mysql',
         host: configService.get('DB_HOST'),
         port: configService.get('DB_PORT'),
         username: configService.get('DB_USERNAME'),
@@ -26,11 +30,17 @@ import { UploadModule } from './upload/upload.module';
       }),
       inject: [ConfigService],
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
     ApiAppModule,
     MangaModule,
     ChaptersModule,
     CategoriesModule,
     UploadModule,
+    TranslationModule,
+    AudioModule
   ],
 })
 export class AppModule {}

@@ -6,20 +6,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TranslationModule = void 0;
+exports.AudioModule = void 0;
 const common_1 = require("@nestjs/common");
-const translation_service_1 = require("./translation.service");
-const translation_controller_1 = require("./translation.controller");
 const axios_1 = require("@nestjs/axios");
-let TranslationModule = class TranslationModule {
+const audio_controller_1 = require("./audio.controller");
+const audio_service_1 = require("./audio.service");
+let AudioModule = class AudioModule {
 };
-exports.TranslationModule = TranslationModule;
-exports.TranslationModule = TranslationModule = __decorate([
+exports.AudioModule = AudioModule;
+exports.AudioModule = AudioModule = __decorate([
     (0, common_1.Module)({
         imports: [axios_1.HttpModule],
-        controllers: [translation_controller_1.TranslationController],
-        providers: [translation_service_1.TranslationService],
-        exports: [translation_service_1.TranslationService],
+        controllers: [audio_controller_1.AudioController],
+        providers: [audio_service_1.AudioService],
+        exports: [audio_service_1.AudioService],
     })
-], TranslationModule);
-//# sourceMappingURL=translation.module.js.map
+], AudioModule);
+//# sourceMappingURL=audio.module.js.map
