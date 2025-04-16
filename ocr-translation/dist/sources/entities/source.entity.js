@@ -18,6 +18,7 @@ var SourceType;
     SourceType["MANGAFOX"] = "MANGAFOX";
     SourceType["MANMANAPP"] = "MANMANAPP";
     SourceType["CUSTOM"] = "CUSTOM";
+    SourceType["TRUYENCHUHAY"] = "TRUYENCHUHAY";
 })(SourceType || (exports.SourceType = SourceType = {}));
 let Source = class Source {
     id;

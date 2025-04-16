@@ -23,18 +23,14 @@ export class ImageService {
 
   async downloadAndSaveImage(imageUrl: string): Promise<string> {
     try {
-      // Download image
       const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
       
-      // Generate unique filename
       const ext = path.extname(imageUrl) || '.jpg';
       const filename = `${uuidv4()}${ext}`;
       const filePath = path.join(this.uploadDir, filename);
 
-      // Save image
       await writeFileAsync(filePath, response.data);
 
-      // Return relative path
       return path.join('uploads', filename);
     } catch (error) {
       console.error('Error downloading image:', error);

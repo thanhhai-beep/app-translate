@@ -23,7 +23,7 @@ let SourcesController = class SourcesController {
         this.sourcesService = sourcesService;
     }
     async importMangaList(importMangaListDto) {
-        return this.sourcesService.importMangaList(importMangaListDto.url, importMangaListDto.sourceType);
+        return this.sourcesService.importManga(importMangaListDto.url, importMangaListDto.sourceType);
     }
     async saveMangaList(mangaList) {
         return this.sourcesService.saveMangaList(mangaList);

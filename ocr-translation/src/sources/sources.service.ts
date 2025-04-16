@@ -11,6 +11,8 @@ import { Chapter } from '../manga/entities/chapter.entity';
 import { MangaType, MangaStatus } from '../manga/entities/manga.entity';
 import { MangaInfo } from './types/manga-info.interface';
 import * as fs from 'fs';
+import { ImageService } from 'src/services/image.service';
+import { Category } from 'src/categories/category.entity';
 
 @Injectable()
 export class SourcesService {
@@ -21,7 +23,10 @@ export class SourcesService {
     private readonly mangaRepository: Repository<Manga>,
     @InjectRepository(Chapter)
     private readonly chapterRepository: Repository<Chapter>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
     private readonly httpService: HttpService,
+    private readonly imageService: ImageService
   ) {}
 
   async importMangaList(url: string, sourceType: string): Promise<MangaInfo[]> {
@@ -35,8 +40,6 @@ export class SourcesService {
         const $element = $(element);
         const title = $element.find('a').text().trim();
         const mangaUrl = $element.find('a').attr('href');
-
-        console.log('Found manga:', { title, mangaUrl });
 
         if (title && mangaUrl) {
           mangaList.push({
@@ -58,7 +61,8 @@ export class SourcesService {
           const coverImage = $manga('.pic img').attr('src');
           const author = $manga('.describe_title a').text().trim();
           const status = $manga('.status').text().trim();
-          const genres = $manga('.genres').text().trim();
+          const rawGenres = $manga('.describe_title .type').text().trim();
+          const genres = rawGenres.split(/[:：]/)[1]?.trim() || '';
           const chapters = $manga('.chapter-list .chapter').map((_, el) => {
             const $el = $(el);
             return {
@@ -92,22 +96,22 @@ export class SourcesService {
     }
   }
 
-  async importManga(crawlMangaDto: CrawlMangaDto): Promise<Manga> {
+  async importManga(url: string, sourceType: string): Promise<MangaInfo[]> {
     let source: Source | null;
 
-    if (crawlMangaDto.sourceId) {
-      source = await this.sourceRepository.findOne({
-        where: { id: crawlMangaDto.sourceId },
-      });
-    } else {
-      source = await this.detectSourceFromUrl(crawlMangaDto.url);
-    }
+    // if (crawlMangaDto.sourceId) {
+    //   source = await this.sourceRepository.findOne({
+    //     where: { id: crawlMangaDto.sourceId },
+    //   });
+    // } else {
+    //   source = await this.detectSourceFromUrl(url);
+    // }
 
-    if (!source) {
-      throw new NotFoundException('Source not found');
-    }
+    // if (!source) {
+    //   throw new NotFoundException('Source not found');
+    // }
 
-    return this.importFromSource(crawlMangaDto.url, source);
+    return this.importFromSource(url, sourceType);
   }
 
   private async detectSourceFromUrl(url: string): Promise<Source> {
@@ -144,16 +148,18 @@ export class SourcesService {
     return source;
   }
 
-  private async importFromSource(url: string, source: Source): Promise<Manga> {
-    switch (source.type) {
-      case SourceType.MANGADEX:
-        return this.importFromMangadex(url);
-      case SourceType.MANGABAT:
-        return this.importFromMangabat(url);
-      case SourceType.MANGAFOX:
-        return this.importFromMangafox(url);
+  private async importFromSource(url: string, source: string): Promise<MangaInfo[]> {
+    switch (source) {
+      // case SourceType.MANGADEX:
+      //   return this.importFromMangadex(url);
+      // case SourceType.MANGABAT:
+      //   return this.importFromMangabat(url);
+      // case SourceType.MANGAFOX:
+      //   return this.importFromMangafox(url);
       case SourceType.MANMANAPP:
-        return this.importFromManmanapp(url);
+        return this.importMangaList(url, "MANMANAPP");
+      case SourceType.TRUYENCHUHAY:
+        return this.importFromTruyenchuhay(url, "TRUYENCHUHAY");
       default:
         throw new Error('Unsupported source type');
     }
@@ -339,12 +345,99 @@ export class SourcesService {
     }
   }
 
+  private async importFromTruyenchuhay(url: string, sourceType: string): Promise<MangaInfo[]> {
+    try {
+      const response = await this.httpService.axiosRef.get(url);
+      const $ = cheerio.load(response.data);
+      const mangaList: MangaInfo[] = [];
+      const originUrl = new URL(url).origin;
+
+      $('h3').each((_, element) => {
+        const $element = $(element);
+        const title = $element.find('a').text().trim();
+        const mangaUrl = $element.find('a').attr('href');
+
+        if (title && mangaUrl) {
+          mangaList.push({
+            title,
+            url: mangaUrl,
+            sourceType,
+          });
+        }
+      });
+
+      const detailedMangaList: MangaInfo[] = [];
+      for (const mangaInfo of mangaList) {
+        try {
+          const mangaResponse = await this.httpService.axiosRef.get(mangaInfo.url);
+          const $manga = cheerio.load(mangaResponse.data);
+
+          const description = $manga('#gioi-thieu-truyen').text().trim();
+          const coverImage = $manga('.book-images img').attr('src');
+          const author = $manga('[itemprop="author"] a.capitalize span').text().trim();
+          const status = $manga('.status').text().trim();
+          const genreElements = $manga('.text-base .whitespace-nowrap a');
+          const genres = genreElements.map((_, el) => $(el).text().trim()).get().join(', ');         
+          const chapters = $manga('#danh-sach-chuong li.flex.items-center').map((_, el) => {
+            const $el = $(el);
+
+            const rawTitle = $el.find('a.capitalize').text().trim();
+            const title = rawTitle.split(':')[1]?.trim() || '';
+            return {
+              title: title,
+              url: originUrl + $el.find('a').attr('href'),
+              date: $el.find('.date').text().trim(),
+            };
+          }).get();
+
+          detailedMangaList.push({
+            ...mangaInfo,
+            url: mangaInfo.url,
+            description,
+            coverImage,
+            author,
+            status,
+            genres,
+            chapters,
+          });
+        } catch (error) {
+          console.error(`Failed to crawl manga ${mangaInfo.title}:`, error);
+          detailedMangaList.push(mangaInfo);
+        }
+      }
+
+      return detailedMangaList;
+    } catch (error) {
+      console.error('Error in importMangaList:', error);
+      throw new Error(`Failed to import manga list: ${error.message}`);
+    }
+  }
+
   async saveMangaList(mangaList: MangaInfo[]): Promise<Manga[]> {
     const savedMangaList: Manga[] = [];
     const data = mangaList as any;
     
     for (const mangaInfo of data.mangaList) {
       try {
+        const coverImagePath = await this.imageService.downloadAndSaveImage(mangaInfo.coverImage);
+        
+        const genres = mangaInfo.genres ? mangaInfo.genres.split(',').map(g => g.trim()) : [];
+        const categories = await Promise.all(
+          genres.map(async (genre) => {
+            let category = await this.categoryRepository.findOne({ where: { name: genre } });
+            if (!category) {
+              category = this.categoryRepository.create({
+                name: genre,
+                description: genre,
+                createdAt: new Date(),
+                updatedAt: new Date()
+              });
+              await this.categoryRepository.save(category);
+            }
+            return category;
+          })
+        );
+        
         const mangadetail = {
           title: mangaInfo.title,
           originalTitle: mangaInfo.title,
@@ -355,13 +448,13 @@ export class SourcesService {
           genres: mangaInfo.genres || '',
           type: MangaType.IMPORT,
           status: MangaStatus.ONGOING,
-          coverImage: mangaInfo.coverImage || '',
+          coverImage: coverImagePath || '',
           url: mangaInfo.url,
           sourceType: mangaInfo.sourceType as SourceType,
           sourceLanguage: 'ja',
           targetLanguage: 'en',
           targetLanguages: 'en',
-          categories: [],
+          categories: categories,
           chapters: [],
           isCompleted: false,
           isPublished: true,
@@ -374,7 +467,7 @@ export class SourcesService {
           sourceUrl: mangaInfo.sourceUrl,
           createdAt: new Date(),
           updatedAt: new Date(),
-        } as Partial<Manga>
+        } as Partial<Manga>;
         
         const manga = this.mangaRepository.create(mangadetail);
         const savedManga = await this.mangaRepository.save(manga);
@@ -399,7 +492,7 @@ export class SourcesService {
           await this.chapterRepository.save(chapters);
         }
       } catch (error) {
-        console.error(`Failed to save manga ${mangaInfo.title}:`, error);
+        console.error('Error saving manga:', error);
       }
     }
 

@@ -3,7 +3,8 @@ export declare enum SourceType {
     MANGABAT = "MANGABAT",
     MANGAFOX = "MANGAFOX",
     MANMANAPP = "MANMANAPP",
-    CUSTOM = "CUSTOM"
+    CUSTOM = "CUSTOM",
+    TRUYENCHUHAY = "TRUYENCHUHAY"
 }
 export declare class Source {
     id: string;

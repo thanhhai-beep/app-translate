@@ -75,10 +75,11 @@ const ImportMangaPage = () => {
                 className="w-full p-2 border rounded"
               >
                 <option value="">Select a source</option>
-                <option value="manmanapp">manmanapp</option>
-                <option value="mangadex">MangaDex</option>
-                <option value="mangabat">MangaBat</option>
-                <option value="mangafox">MangaFox</option>
+                <option value="MANMANAPP">Manmanapp</option>
+                <option value="TRUYENCHUHAY">Truyenchuhay</option>
+                <option value="MANGADEX">MangaDex</option>
+                <option value="MANGABAT">MangaBat</option>
+                <option value="MANGAFOX">MangaFox</option>
               </select>
             </div>
             <button

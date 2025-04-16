@@ -24,16 +24,22 @@ const manga_entity_1 = require("../manga/entities/manga.entity");
 const chapter_entity_1 = require("../manga/entities/chapter.entity");
 const manga_entity_2 = require("../manga/entities/manga.entity");
 const fs = require("fs");
+const image_service_1 = require("../services/image.service");
+const category_entity_1 = require("../categories/category.entity");
 let SourcesService = class SourcesService {
     sourceRepository;
     mangaRepository;
     chapterRepository;
+    categoryRepository;
     httpService;
-    constructor(sourceRepository, mangaRepository, chapterRepository, httpService) {
+    imageService;
+    constructor(sourceRepository, mangaRepository, chapterRepository, categoryRepository, httpService, imageService) {
         this.sourceRepository = sourceRepository;
         this.mangaRepository = mangaRepository;
         this.chapterRepository = chapterRepository;
+        this.categoryRepository = categoryRepository;
         this.httpService = httpService;
+        this.imageService = imageService;
     }
     async importMangaList(url, sourceType) {
         try {
@@ -45,7 +51,6 @@ let SourcesService = class SourcesService {
                 const $element = $(element);
                 const title = $element.find('a').text().trim();
                 const mangaUrl = $element.find('a').attr('href');
-                console.log('Found manga:', { title, mangaUrl });
                 if (title && mangaUrl) {
                     mangaList.push({
                         title,
@@ -64,7 +69,8 @@ let SourcesService = class SourcesService {
                     const coverImage = $manga('.pic img').attr('src');
                     const author = $manga('.describe_title a').text().trim();
                     const status = $manga('.status').text().trim();
-                    const genres = $manga('.genres').text().trim();
+                    const rawGenres = $manga('.describe_title .type').text().trim();
+                    const genres = rawGenres.split(/[:：]/)[1]?.trim() || '';
                     const chapters = $manga('.chapter-list .chapter').map((_, el) => {
                         const $el = $(el);
                         return {
@@ -97,20 +103,9 @@ let SourcesService = class SourcesService {
             throw new Error(`Failed to import manga list: ${error.message}`);
         }
     }
-    async importManga(crawlMangaDto) {
+    async importManga(url, sourceType) {
         let source;
-        if (crawlMangaDto.sourceId) {
-            source = await this.sourceRepository.findOne({
-                where: { id: crawlMangaDto.sourceId },
-            });
-        }
-        else {
-            source = await this.detectSourceFromUrl(crawlMangaDto.url);
-        }
-        if (!source) {
-            throw new common_1.NotFoundException('Source not found');
-        }
-        return this.importFromSource(crawlMangaDto.url, source);
+        return this.importFromSource(url, sourceType);
     }
     async detectSourceFromUrl(url) {
         let source = null;
@@ -146,15 +141,11 @@ let SourcesService = class SourcesService {
         return source;
     }
     async importFromSource(url, source) {
-        switch (source.type) {
-            case source_entity_2.SourceType.MANGADEX:
-                return this.importFromMangadex(url);
-            case source_entity_2.SourceType.MANGABAT:
-                return this.importFromMangabat(url);
-            case source_entity_2.SourceType.MANGAFOX:
-                return this.importFromMangafox(url);
+        switch (source) {
             case source_entity_2.SourceType.MANMANAPP:
-                return this.importFromManmanapp(url);
+                return this.importMangaList(url, "MANMANAPP");
+            case source_entity_2.SourceType.TRUYENCHUHAY:
+                return this.importFromTruyenchuhay(url, "TRUYENCHUHAY");
             default:
                 throw new Error('Unsupported source type');
         }
@@ -327,11 +318,88 @@ let SourcesService = class SourcesService {
             throw new Error(`Failed to import from Manmanapp: ${error.message}`);
         }
     }
+    async importFromTruyenchuhay(url, sourceType) {
+        try {
+            const response = await this.httpService.axiosRef.get(url);
+            const $ = cheerio.load(response.data);
+            const mangaList = [];
+            const originUrl = new URL(url).origin;
+            $('h3').each((_, element) => {
+                const $element = $(element);
+                const title = $element.find('a').text().trim();
+                const mangaUrl = $element.find('a').attr('href');
+                if (title && mangaUrl) {
+                    mangaList.push({
+                        title,
+                        url: mangaUrl,
+                        sourceType,
+                    });
+                }
+            });
+            const detailedMangaList = [];
+            for (const mangaInfo of mangaList) {
+                try {
+                    const mangaResponse = await this.httpService.axiosRef.get(mangaInfo.url);
+                    const $manga = cheerio.load(mangaResponse.data);
+                    const description = $manga('#gioi-thieu-truyen').text().trim();
+                    const coverImage = $manga('.book-images img').attr('src');
+                    const author = $manga('[itemprop="author"] a.capitalize span').text().trim();
+                    const status = $manga('.status').text().trim();
+                    const genreElements = $manga('.text-base .whitespace-nowrap a');
+                    const genres = genreElements.map((_, el) => $(el).text().trim()).get().join(', ');
+                    const chapters = $manga('#danh-sach-chuong li.flex.items-center').map((_, el) => {
+                        const $el = $(el);
+                        const rawTitle = $el.find('a.capitalize').text().trim();
+                        const title = rawTitle.split(':')[1]?.trim() || '';
+                        return {
+                            title: title,
+                            url: originUrl + $el.find('a').attr('href'),
+                            date: $el.find('.date').text().trim(),
+                        };
+                    }).get();
+                    detailedMangaList.push({
+                        ...mangaInfo,
+                        url: mangaInfo.url,
+                        description,
+                        coverImage,
+                        author,
+                        status,
+                        genres,
+                        chapters,
+                    });
+                }
+                catch (error) {
+                    console.error(`Failed to crawl manga ${mangaInfo.title}:`, error);
+                    detailedMangaList.push(mangaInfo);
+                }
+            }
+            return detailedMangaList;
+        }
+        catch (error) {
+            console.error('Error in importMangaList:', error);
+            throw new Error(`Failed to import manga list: ${error.message}`);
+        }
+    }
     async saveMangaList(mangaList) {
         const savedMangaList = [];
         const data = mangaList;
         for (const mangaInfo of data.mangaList) {
             try {
+                const coverImagePath = await this.imageService.downloadAndSaveImage(mangaInfo.coverImage);
+                const genres = mangaInfo.genres ? mangaInfo.genres.split(',').map(g => g.trim()) : [];
+                const categories = await Promise.all(genres.map(async (genre) => {
+                    let category = await this.categoryRepository.findOne({ where: { name: genre } });
+                    if (!category) {
+                        category = this.categoryRepository.create({
+                            name: genre,
+                            description: genre,
+                            createdAt: new Date(),
+                            updatedAt: new Date()
+                        });
+                        await this.categoryRepository.save(category);
+                    }
+                    return category;
+                }));
                 const mangadetail = {
                     title: mangaInfo.title,
                     originalTitle: mangaInfo.title,
@@ -342,13 +410,13 @@ let SourcesService = class SourcesService {
                     genres: mangaInfo.genres || '',
                     type: manga_entity_2.MangaType.IMPORT,
                     status: manga_entity_2.MangaStatus.ONGOING,
-                    coverImage: mangaInfo.coverImage || '',
+                    coverImage: coverImagePath || '',
                     url: mangaInfo.url,
                     sourceType: mangaInfo.sourceType,
                     sourceLanguage: 'ja',
                     targetLanguage: 'en',
                     targetLanguages: 'en',
-                    categories: [],
+                    categories: categories,
                     chapters: [],
                     isCompleted: false,
                     isPublished: true,
@@ -384,7 +452,7 @@ let SourcesService = class SourcesService {
                 }
             }
             catch (error) {
-                console.error(`Failed to save manga ${mangaInfo.title}:`, error);
+                console.error('Error saving manga:', error);
             }
         }
         return savedMangaList;
@@ -483,9 +551,12 @@ exports.SourcesService = SourcesService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(source_entity_1.Source)),
     __param(1, (0, typeorm_1.InjectRepository)(manga_entity_1.Manga)),
     __param(2, (0, typeorm_1.InjectRepository)(chapter_entity_1.Chapter)),
+    __param(3, (0, typeorm_1.InjectRepository)(category_entity_1.Category)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
-        axios_1.HttpService])
+        typeorm_2.Repository,
+        axios_1.HttpService,
+        image_service_1.ImageService])
 ], SourcesService);
 //# sourceMappingURL=sources.service.js.map

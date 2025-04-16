@@ -6,6 +6,7 @@ export enum SourceType {
   MANGAFOX = 'MANGAFOX',
   MANMANAPP = 'MANMANAPP',
   CUSTOM = 'CUSTOM',
+  TRUYENCHUHAY = "TRUYENCHUHAY"
 }
 
 @Entity('sources')

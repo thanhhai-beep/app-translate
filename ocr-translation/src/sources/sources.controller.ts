@@ -14,7 +14,7 @@ export class SourcesController {
   async importMangaList(
     @Body() importMangaListDto: ImportMangaListDto,
   ): Promise<MangaInfo[]> {
-    return this.sourcesService.importMangaList(
+    return this.sourcesService.importManga(
       importMangaListDto.url,
       importMangaListDto.sourceType,
     );
