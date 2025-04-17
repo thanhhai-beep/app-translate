@@ -26,7 +26,7 @@ export class Manga {
   @Column({ nullable: true })
   originalTitle: string;
 
-  @Column({ nullable: true })
+  @Column('text', { nullable: true })
   description: string;
 
   @Column({ nullable: true })

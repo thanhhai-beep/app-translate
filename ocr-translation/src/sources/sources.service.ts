@@ -1,18 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Source } from './entities/source.entity';
 import { SourceType } from './entities/source.entity';
-import { CrawlMangaDto } from './dto/crawl-manga.dto';
 import { HttpService } from '@nestjs/axios';
 import * as cheerio from 'cheerio';
 import { Manga } from '../manga/entities/manga.entity';
-import { Chapter } from '../manga/entities/chapter.entity';
 import { MangaType, MangaStatus } from '../manga/entities/manga.entity';
 import { MangaInfo } from './types/manga-info.interface';
 import * as fs from 'fs';
 import { ImageService } from 'src/services/image.service';
 import { Category } from 'src/categories/category.entity';
+import { Chapter, ChapterStatus, ChapterType } from '@/chapters/entities/chapter.entity';
 
 @Injectable()
 export class SourcesService {
@@ -422,6 +421,40 @@ export class SourcesService {
     }
   }
 
+  async importChapterTruyenChuHay(url: string, totalChapters: number, savedManga: Manga): Promise<Chapter[]> {
+    const chapters: Chapter[] = [];
+
+    for (let i = 1; i <= totalChapters; i++) {
+      const chapterUrl = `${url}/chuong-${i}`;
+      try {
+        const mangaResponse = await this.httpService.axiosRef.get(chapterUrl);
+        const $ = cheerio.load(mangaResponse.data);
+
+        const rawTitle = $('h2 a.capitalize').text().trim();
+        let title = rawTitle.replace(/^chương\s*\d*\s*[:：\-–]*\s*/i, '').trim();
+        title = title.replace(/^\d+\s*[:：\-–]\s*/, '').trim();
+
+        const contentHtml = $('#content-chapter').html()?.trim() || '';
+
+        const chapter = new Chapter();
+        chapter.title = title;
+        chapter.content = contentHtml;
+        chapter.chapterNumber = i
+        chapter.contentType = ChapterType.TEXT
+        chapter.manga = savedManga;
+        chapter.mangaId = savedManga.id;
+        chapter.type = ChapterType.TEXT
+        chapter.status = ChapterStatus.PUBLISHED
+
+        chapters.push(chapter);
+      } catch (error) {
+        console.warn(`Lỗi khi cào chương ${i}:`, error.message);
+      }
+    }
+
+    return chapters;
+  }
+
   async saveMangaList(mangaList: MangaInfo[]): Promise<Manga[]> {
     const savedMangaList: Manga[] = [];
     const data = mangaList as any;
@@ -482,23 +515,12 @@ export class SourcesService {
         const savedManga = await this.mangaRepository.save(manga);
         savedMangaList.push(savedManga);
 
-        if (mangaInfo.chapters && mangaInfo.chapters.length > 0) {
-          const chapters = mangaInfo.chapters.map(chapter => {
-            const newChapter = new Chapter();
-            newChapter.title = chapter.title;
-            newChapter.number = 0;
-            newChapter.description = '';
-            newChapter.pageUrls = chapter.url;
-            newChapter.pageCount = 0;
-            newChapter.sourceLanguage = 'ja';
-            newChapter.targetLanguages = 'en';
-            newChapter.viewCount = 0;
-            newChapter.manga = savedManga;
-            newChapter.mangaId = savedManga.id;
-            return newChapter;
-          });
-
-          await this.chapterRepository.save(chapters);
+        switch (mangaInfo.sourceType) {
+          case SourceType.TRUYENCHUHAY:
+            mangaInfo.chapters = await this.importChapterTruyenChuHay(mangaInfo.url, mangaInfo.totalChapters, savedManga)
+            await this.chapterRepository.save(mangaInfo.chapters);
+          default:
+            mangaInfo.chapters = mangaInfo.chapters
         }
       } catch (error) {
         console.error('Error saving manga:', error);
@@ -561,13 +583,6 @@ export class SourcesService {
         for (const chapter of mangaInfo.chapters) {
           const newChapter = new Chapter();
           newChapter.title = chapter.title;
-          newChapter.number = 0;
-          newChapter.description = '';
-          newChapter.pageUrls = chapter.url;
-          newChapter.pageCount = 0;
-          newChapter.sourceLanguage = 'ja';
-          newChapter.targetLanguages = 'en';
-          newChapter.viewCount = 0;
           newChapter.manga = savedManga;
           newChapter.mangaId = savedManga.id;
 
@@ -593,8 +608,8 @@ export class SourcesService {
                 savedImagePaths.push(imagePath);
               }
               
-              newChapter.pageUrls = savedImagePaths.join(',');
-              newChapter.pageCount = savedImagePaths.length;
+              // newChapter.pageUrls = savedImagePaths.join(',');
+              // newChapter.pageCount = savedImagePaths.length;
             }
           }
 
