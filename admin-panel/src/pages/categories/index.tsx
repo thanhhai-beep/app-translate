@@ -24,7 +24,7 @@ export default function CategoryList() {
 
   return (
     <MainLayout>
-      <div className="">
+      <div className="bg-white rounded-lg shadow p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Categories</h1>
           <button

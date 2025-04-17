@@ -18,9 +18,10 @@ const upload_module_1 = require("./upload/upload.module");
 const translation_module_1 = require("./translation/translation.module");
 const serve_static_1 = require("@nestjs/serve-static");
 const path_1 = require("path");
-const audio_module_1 = require("./audio/audio.module");
 const auth_module_1 = require("./auth/auth.module");
 const sources_module_1 = require("./sources/sources.module");
+const bull_1 = require("@nestjs/bull");
+const audio_module_1 = require("./audio/audio.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -56,7 +57,13 @@ exports.AppModule = AppModule = __decorate([
             translation_module_1.TranslationModule,
             auth_module_1.AuthModule,
             audio_module_1.AudioModule,
-            sources_module_1.SourcesModule
+            sources_module_1.SourcesModule,
+            bull_1.BullModule.forRoot({
+                redis: {
+                    host: 'localhost',
+                    port: 6379,
+                },
+            }),
         ],
     })
 ], AppModule);

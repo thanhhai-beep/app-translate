@@ -9,10 +9,10 @@ import { UploadModule } from './upload/upload.module';
 import { TranslationModule } from './translation/translation.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { AudioModule } from './audio/audio.module';
 import { AuthModule } from './auth/auth.module';
 import { SourcesModule } from './sources/sources.module';
 import { BullModule } from '@nestjs/bull';
+import { AudioModule } from './audio/audio.module';
 
 @Module({
   imports: [

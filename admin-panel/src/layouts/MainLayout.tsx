@@ -13,6 +13,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     { label: 'Dashboard', path: '/dashboard', icon: '📊' },
     { label: 'Categories', path: '/categories', icon: '📑' },
     { label: 'Manga', path: '/manga', icon: '📚' },
+    { label: 'Audio', path: '/audio', icon: '🎧' },
     { label: 'Translations', path: '/translations', icon: '🌐' },
     { label: 'Users', path: '/users', icon: '👥' },
     { label: 'Settings', path: '/settings', icon: '⚙️' },
