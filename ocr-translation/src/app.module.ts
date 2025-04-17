@@ -12,6 +12,7 @@ import { join } from 'path';
 import { AudioModule } from './audio/audio.module';
 import { AuthModule } from './auth/auth.module';
 import { SourcesModule } from './sources/sources.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -44,7 +45,13 @@ import { SourcesModule } from './sources/sources.module';
     TranslationModule,
     AuthModule,
     AudioModule,
-    SourcesModule
+    SourcesModule,
+    BullModule.forRoot({
+      redis: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
   ],
 })
 export class AppModule {}

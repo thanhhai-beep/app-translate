@@ -623,4 +623,83 @@ export class SourcesService {
       throw new Error(`Failed to save manga with images: ${error.message}`);
     }
   }
+
+  async saveMangaAndChapters(mangaList: MangaInfo): Promise<Manga> {
+    const savedMangaList: Manga = {} as Manga;
+    const mangaInfo: MangaInfo = mangaList;
+    
+    try {
+      let coverImagePath = "";
+      if (mangaInfo.coverImage) {
+        coverImagePath = await this.imageService.downloadAndSaveImage(mangaInfo.coverImage);
+      }
+      
+      const genres = mangaInfo.genres ? mangaInfo.genres.split(',').map(g => g.trim()) : [];
+      const categories = await Promise.all(
+        genres.map(async (genre) => {
+          let category = await this.categoryRepository.findOne({ where: { name: genre } });
+          if (!category) {
+            category = this.categoryRepository.create({
+              name: genre,
+              description: genre,
+              createdAt: new Date(),
+              updatedAt: new Date()
+            });
+            await this.categoryRepository.save(category);
+          }
+          return category;
+        })
+      );
+      
+      const mangadetail = {
+        title: mangaInfo.title,
+        originalTitle: mangaInfo.title,
+        description: mangaInfo.description || '',
+        author: mangaInfo.author || 'Unknown',
+        artist: mangaInfo.author || 'Unknown',
+        publisher: 'Unknown',
+        genres: mangaInfo.genres || '',
+        type: MangaType.IMPORT,
+        status: MangaStatus.ONGOING,
+        coverImage: coverImagePath || '',
+        url: mangaInfo.url,
+        sourceType: mangaInfo.sourceType as SourceType,
+        sourceLanguage: 'ja',
+        targetLanguage: 'en',
+        targetLanguages: 'en',
+        categories: categories,
+        chapters: [],
+        isCompleted: false,
+        isPublished: true,
+        isDeleted: false,
+        viewCount: 0,
+        likeCount: 0,
+        commentCount: 0,
+        rating: 0,
+        ratingCount: 0,
+        sourceUrl: mangaInfo.sourceUrl,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Partial<Manga>;
+      
+      const manga = this.mangaRepository.create(mangadetail);
+      const savedManga = await this.mangaRepository.save(manga);
+
+      switch (mangaInfo.sourceType) {
+        case SourceType.TRUYENCHUHAY:
+          if (mangaInfo.totalChapters) {
+            console.log("savedManga savedManga",mangaInfo.totalChapters);
+            const chapters = await this.importChapterTruyenChuHay(mangaInfo.url, mangaInfo.totalChapters, savedManga)
+            
+            await this.chapterRepository.save(chapters);
+          }
+        default:
+          mangaInfo.chapters = mangaInfo.chapters
+      }
+    } catch (error) {
+      console.error('Error saving manga:', error);
+    }
+
+    return savedMangaList;
+  }
 } 
