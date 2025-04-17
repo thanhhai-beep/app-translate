@@ -350,7 +350,7 @@ export class SourcesService {
       const response = await this.httpService.axiosRef.get(url);
       const $ = cheerio.load(response.data);
       const mangaList: MangaInfo[] = [];
-      const originUrl = new URL(url).origin;
+      // const originUrl = new URL(url).origin;
 
       $('h3').each((_, element) => {
         const $element = $(element);
@@ -377,18 +377,26 @@ export class SourcesService {
           const author = $manga('[itemprop="author"] a.capitalize span').text().trim();
           const status = $manga('.status').text().trim();
           const genreElements = $manga('.text-base .whitespace-nowrap a');
-          const genres = genreElements.map((_, el) => $(el).text().trim()).get().join(', ');         
-          const chapters = $manga('#danh-sach-chuong li.flex.items-center').map((_, el) => {
-            const $el = $(el);
+          const genres = genreElements.map((_, el) => $(el).text().trim()).get().join(', ');   
 
-            const rawTitle = $el.find('a.capitalize').text().trim();
-            const title = rawTitle.split(':')[1]?.trim() || '';
-            return {
-              title: title,
-              url: originUrl + $el.find('a').attr('href'),
-              date: $el.find('.date').text().trim(),
-            };
-          }).get();
+          const lengthDiv = $manga('.text-base .flex').filter((_, el) => {
+            return $manga(el).find('h3').text().includes('Độ dài');
+          }).first();
+          const lengthText = lengthDiv.find('span').text().trim();
+          const totalChapters = parseInt(lengthText.replace(/[^\d]/g, ''), 10);
+
+          const chapters = [];
+          // const chapters = $manga('#danh-sach-chuong li.flex.items-center').map((_, el) => {
+          //   const $el = $(el);
+
+          //   const rawTitle = $el.find('a.capitalize').text().trim();
+          //   const title = rawTitle.split(':')[1]?.trim() || '';
+          //   return {
+          //     title: title,
+          //     url: originUrl + $el.find('a').attr('href'),
+          //     date: $el.find('.date').text().trim(),
+          //   };
+          // }).get();
 
           detailedMangaList.push({
             ...mangaInfo,
@@ -398,6 +406,7 @@ export class SourcesService {
             author,
             status,
             genres,
+            totalChapters,
             chapters,
           });
         } catch (error) {

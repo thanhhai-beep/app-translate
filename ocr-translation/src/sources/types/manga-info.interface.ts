@@ -9,6 +9,7 @@ export interface MangaInfo {
   status?: string;
   genres?: string;
   sourceUrl?: string;
+  totalChapters?: number;
   chapters?: Array<{
     title: string;
     url: string;
