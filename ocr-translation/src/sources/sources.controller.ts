@@ -129,7 +129,7 @@ export class SourcesController {
       const timestamp = job.timestamp;
       const isStopped = job.data?.isStopped || false;
 
-      this.logger.log(`Job ${jobId} status: ${state}, progress: ${JSON.stringify(progress)}`);
+      this.logger.log(`Job ${jobId} status: ${state}, progress: ${job.data}`);
 
       return {
         jobId,

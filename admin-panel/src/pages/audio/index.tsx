@@ -94,9 +94,6 @@ export default function AudioListPage() {
                       Title
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Manga
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Chapters
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -128,11 +125,14 @@ export default function AudioListPage() {
                           <div className="text-sm text-gray-500">{audio.format.toUpperCase()} • {audio.bitrate}kbps</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{audio.mangaId}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
+                          {/* <div className="text-sm text-gray-900">
                             {audio.startChapterNumber} - {audio.endChapterNumber}
+                          </div> */}
+                          <div className="w-64">
+                            <audio controls className="w-full">
+                              <source src={process.env.NEXT_PUBLIC_API_URL + "/" + audio.filePath} type="audio/mpeg" />
+                              Trình duyệt của bạn không hỗ trợ phát audio.
+                            </audio>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -157,12 +157,12 @@ export default function AudioListPage() {
                           {new Date(audio.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button
+                          {/* <button
                             onClick={() => router.push(`/audio/${audio.id}`)}
                             className="text-blue-600 hover:text-blue-900 mr-4"
                           >
                             View
-                          </button>
+                          </button> */}
                           {audio.status === 'completed' && (
                             <button
                               onClick={() => window.open(`/api/audio/${audio.id}/download`, '_blank')}

@@ -13,7 +13,7 @@ export class AudioController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  // @Roles(Role.ADMIN)
   create(@Body() createAudioDto: CreateAudioDto) {
     return this.audioService.create(createAudioDto);
   }

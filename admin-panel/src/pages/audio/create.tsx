@@ -16,6 +16,7 @@ export default function CreateAudioPage() {
   const [title, setTitle] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [audioSettings, setAudioSettings] = useState({
+    format: 'mp3',
     bitrate: 128,
     sampleRate: 44100,
     channels: 2,

@@ -1,4 +1,5 @@
 import { IsString, IsUUID, IsInt, Min, Max, IsOptional } from 'class-validator';
+import { Column } from 'typeorm';
 
 export class CreateAudioDto {
   @IsString()
@@ -9,10 +10,12 @@ export class CreateAudioDto {
 
   @IsInt()
   @Min(1)
+  @Column({ name: 'start_chapter_id' })
   startChapterNumber: number;
 
   @IsInt()
   @Min(1)
+  @Column({ name: 'end_chapter_id' })
   endChapterNumber: number;
 
   @IsOptional()

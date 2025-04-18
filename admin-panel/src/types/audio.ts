@@ -8,8 +8,8 @@ export interface AudioFile {
   duration?: number;
   fileSize?: number;
   format: string;
-  bitrate?: number;
-  sampleRate?: number;
+  bitrate: number;
+  sampleRate: number;
   channels: number;
   status: 'processing' | 'completed' | 'failed';
   errorMessage?: string;
